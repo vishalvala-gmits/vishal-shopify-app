@@ -99,6 +99,13 @@ type ProductVariantNode = {
   barcode: string | null;
 };
 
+type ProductMediaNode = {
+  id: string;
+  alt: string | null;
+  mediaContentType: string;
+  preview: { image: { url: string } | null } | null;
+};
+
 type ProductListNode = {
   id: string;
   title: string;
@@ -109,6 +116,7 @@ type ProductListNode = {
   createdAt: string;
   updatedAt: string;
   variants: { nodes: ProductVariantNode[] };
+  media: { nodes: ProductMediaNode[] };
 };
 
 type ProductsListResponse = {
@@ -137,6 +145,18 @@ const PRODUCTS_LIST_QUERY = `#graphql
             price
             sku
             barcode
+          }
+        }
+        media(first: 10) {
+          nodes {
+            id
+            alt
+            mediaContentType
+            preview {
+              image {
+                url
+              }
+            }
           }
         }
       }
@@ -170,6 +190,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       price: variant.price,
       sku: variant.sku,
       barcode: variant.barcode,
+    })),
+    media: node.media.nodes.map((media) => ({
+      id: media.id,
+      alt: media.alt,
+      mediaContentType: media.mediaContentType,
+      url: media.preview?.image?.url ?? null,
     })),
   }));
 

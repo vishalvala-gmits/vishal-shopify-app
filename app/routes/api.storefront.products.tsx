@@ -7,6 +7,13 @@ type StorefrontVariantNode = {
   sku: string | null;
 };
 
+type StorefrontMediaNode = {
+  id: string;
+  alt: string | null;
+  mediaContentType: string;
+  image?: { url: string } | null;
+};
+
 type StorefrontProductNode = {
   id: string;
   title: string;
@@ -15,6 +22,7 @@ type StorefrontProductNode = {
   vendor: string;
   productType: string;
   variants: { nodes: StorefrontVariantNode[] };
+  media: { nodes: StorefrontMediaNode[] };
 };
 
 type StorefrontProductsResponse = {
@@ -43,6 +51,18 @@ const STOREFRONT_PRODUCTS_QUERY = `#graphql
             sku
           }
         }
+        media(first: 10) {
+          nodes {
+            id
+            alt
+            mediaContentType
+            ... on MediaImage {
+              image {
+                url
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -67,6 +87,12 @@ export const loader = async () => {
         title: variant.title,
         price: variant.price.amount,
         sku: variant.sku,
+      })),
+      media: node.media.nodes.map((media) => ({
+        id: media.id,
+        alt: media.alt,
+        mediaContentType: media.mediaContentType,
+        url: media.image?.url ?? null,
       })),
     }));
 

@@ -1,4 +1,4 @@
-import { storefrontRequest } from "../services/storefront.server";
+import { storefrontPublicRequest } from "../services/storefront.server";
 
 type StorefrontVariantNode = {
   id: string;
@@ -70,7 +70,7 @@ const STOREFRONT_PRODUCTS_QUERY = `#graphql
 
 export const loader = async () => {
   try {
-    const data = await storefrontRequest<StorefrontProductsResponse>(
+    const data = await storefrontPublicRequest<StorefrontProductsResponse>(
       STOREFRONT_PRODUCTS_QUERY,
       { first: 10 },
     );

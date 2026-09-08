@@ -5,16 +5,16 @@ type StorefrontGraphQLResponse<T> = {
   errors?: { message: string }[];
 };
 
-export async function storefrontRequest<T = unknown>(
+export async function storefrontPublicRequest<T = unknown>(
   query: string,
   variables?: Record<string, unknown>,
 ): Promise<T> {
   const storeDomain = process.env.SHOPIFY_STORE_DOMAIN;
-  const accessToken = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
+  const accessToken = process.env.SHOPIFY_STOREFRONT_PUBLIC_TOKEN;
 
   if (!storeDomain || !accessToken) {
     throw new Error(
-      "Storefront API is not configured: missing SHOPIFY_STORE_DOMAIN or SHOPIFY_STOREFRONT_ACCESS_TOKEN environment variable.",
+      "Storefront API is not configured: missing SHOPIFY_STORE_DOMAIN or SHOPIFY_STOREFRONT_PUBLIC_TOKEN environment variable.",
     );
   }
 

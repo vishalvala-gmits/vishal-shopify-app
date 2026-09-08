@@ -1,4 +1,3 @@
-import type { LoaderFunctionArgs } from "react-router"; 
 import { storefrontPublicRequest } from "../services/storefront.server";
 
 // STEP 1 of the mobile Home API.
@@ -70,7 +69,7 @@ const HOME_QUERY = `#graphql
   }
 `;
 
-export const loader = async ({ request }: LoaderFunctionArgs) => { 
+export const loader = async () => {
 
   let data: HomeResponse;
   try {

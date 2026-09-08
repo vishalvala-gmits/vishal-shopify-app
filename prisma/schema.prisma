@@ -32,3 +32,87 @@ model Session {
   refreshToken        String?
   refreshTokenExpires DateTime?
 }
+
+model SavingsScheme {
+  id              String   @id @default(cuid())
+  shop            String
+
+  name            String
+  durationMonths  Int
+  bonusEnabled    Boolean  @default(false)
+  bonusMonths     Int      @default(0)
+  minAmount       Int
+  maxAmount       Int
+  presetAmounts   Json
+
+  giftEnabled              Boolean  @default(false)
+  giftName                 String?
+  giftValue                Int?
+  giftImageUrl             String?
+  giftMinAmount            Int?
+
+  popularAmount            Int?
+  earlyRedemptionEnabled   Boolean  @default(true)
+  earlyRedemptionMinMonths Int      @default(6)
+  termsText                String?  @default("I agree to Terms & Conditions of Lucira Jewelry.")
+
+  currencySymbol           String   @default("₹")
+  primaryColor             String   @default("#5C4642")
+  status                   String   @default("active")
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  products        SavingsSchemeProduct[]
+  enquiries       SavingsEnquiry[]
+
+  @@index([shop])
+  @@index([shop, status])
+}
+
+model SavingsSchemeProduct {
+  id                String   @id @default(cuid())
+  schemeId          String
+  shop              String
+  shopifyProductId  String
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  scheme            SavingsScheme @relation(fields: [schemeId], references: [id], onDelete: Cascade)
+
+  @@unique([shop, shopifyProductId])
+  @@index([shop])
+  @@index([schemeId])
+}
+
+model SavingsEnquiry {
+  id                  String   @id @default(cuid())
+  shop                String
+  schemeId            String
+  shopifyProductId    String
+
+  customerName        String
+  customerEmail       String?
+  customerPhone       String?
+
+  monthlyAmount       Int
+  durationMonths      Int
+  bonusAmount         Int
+  totalContribution   Int
+  totalBenefit        Int
+
+  giftName            String?
+  giftValue           Int?
+  giftEligible        Boolean  @default(false)
+  sourceUrl           String?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  scheme              SavingsScheme @relation(fields: [schemeId], references: [id], onDelete: Restrict)
+
+  @@index([shop])
+  @@index([shop, schemeId])
+  @@index([shop, createdAt])
+}

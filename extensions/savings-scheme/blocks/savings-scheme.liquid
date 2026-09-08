@@ -1,0 +1,203 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+
+<div
+  class="jss-widget"
+  id="jss-widget-{{ block.id }}"
+  data-jss-widget
+  data-shop="{{ shop.permanent_domain }}"
+  data-product-id="gid://shopify/Product/{{ product.id }}"
+  data-app-url="{{ block.settings.app_url }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="jss-loading" data-jss-loading>Loading savings scheme calculator...</div>
+  <div class="jss-error" data-jss-error hidden>Savings scheme is currently unavailable.</div>
+
+  <div class="jss-content" data-jss-content hidden>
+    <div class="jss-grid">
+      <!-- LEFT COLUMN: Monthly Contribution & Controls -->
+      <div class="jss-col jss-col-controls">
+        <h2 class="jss-title">Adjust your monthly premium</h2>
+
+        <!-- Current Amount Display Card -->
+        <div class="jss-amount-card">
+          <span class="jss-amount-card-label">MONTHLY PREMIUM</span>
+          <span class="jss-amount-card-value" data-jss-amount-display></span>
+        </div>
+
+        <!-- Interactive Slider with Milestone Pins -->
+        <div class="jss-slider-wrapper">
+          <div class="jss-slider-milestones" data-jss-slider-milestones>
+            <!-- Pinned gift milestone icons placed by JS -->
+          </div>
+          <div class="jss-slider-container">
+            <input
+              type="range"
+              class="jss-slider"
+              data-jss-slider
+              aria-label="Monthly premium amount"
+            />
+          </div>
+          <div class="jss-slider-labels">
+            <span class="jss-slider-boundary" data-jss-min-label></span>
+            <span class="jss-slider-boundary" data-jss-max-label></span>
+          </div>
+        </div>
+
+        <!-- Tiered Gift Benefit Cards -->
+        <div class="jss-gift-tiers" data-jss-gift-tiers hidden>
+          <div class="jss-gift-tier-card" data-jss-gift-tier-card>
+            <div class="jss-gift-tier-header">
+              <span class="jss-gift-tier-icon">🎁</span>
+              <span class="jss-gift-tier-title" data-jss-gift-tier-title>Free Gift</span>
+            </div>
+            <span class="jss-gift-tier-status" data-jss-gift-tier-status>Included in your plan</span>
+          </div>
+        </div>
+
+        <!-- OR Divider -->
+        <div class="jss-divider">
+          <span>OR</span>
+        </div>
+
+        <!-- Preset Quick-Select Amount Chips -->
+        <div class="jss-presets" data-jss-presets>
+          <!-- Buttons rendered dynamically via JS -->
+        </div>
+
+        <!-- Primary Action & Terms Checkbox -->
+        <div class="jss-action-group">
+          <button type="button" class="jss-cta-btn" data-jss-cta>CONTINUE</button>
+
+          <label class="jss-terms-label">
+            <input type="checkbox" class="jss-terms-checkbox" data-jss-terms checked />
+            <span class="jss-terms-text" data-jss-terms-text>
+              I agree to Terms &amp; Conditions.
+            </span>
+          </label>
+        </div>
+
+        <!-- Inline Enquiry Form -->
+        <form class="jss-enquiry-form" data-jss-enquiry-form hidden>
+          <h3 class="jss-form-heading">Complete Your Enquiry</h3>
+          <p class="jss-form-subheading">Provide your details to register interest. No immediate payment is required.</p>
+          <label class="jss-field">
+            <span>Full Name *</span>
+            <input type="text" name="name" data-jss-input-name required placeholder="e.g. Priya Sharma" />
+          </label>
+          <div class="jss-field-row">
+            <label class="jss-field">
+              <span>Phone Number *</span>
+              <input type="tel" name="phone" data-jss-input-phone placeholder="e.g. 9876543210" />
+            </label>
+            <label class="jss-field">
+              <span>Email Address</span>
+              <input type="email" name="email" data-jss-input-email placeholder="e.g. priya@example.com" />
+            </label>
+          </div>
+          <p class="jss-form-error" data-jss-form-error hidden></p>
+          <button type="submit" class="jss-cta-btn" data-jss-submit>Submit Enquiry</button>
+        </form>
+
+        <p class="jss-success" data-jss-success hidden>
+          ✓ Enquiry submitted successfully! Our representative will contact you shortly.
+        </p>
+      </div>
+
+      <!-- RIGHT COLUMN: Estimated Premium Summary & Early Redemption -->
+      <div class="jss-col jss-col-summary">
+        <h2 class="jss-title">Estimated Premium Summary</h2>
+
+        <!-- Main Beige Summary Card -->
+        <div class="jss-summary-card">
+          <!-- Total Contribution Row -->
+          <div class="jss-summary-item">
+            <div class="jss-summary-item-left">
+              <span class="jss-bullet jss-bullet-primary"></span>
+              <div>
+                <p class="jss-summary-item-label">Your Total Contribution</p>
+                <p class="jss-summary-item-sublabel" data-jss-contribution-sub></p>
+              </div>
+            </div>
+            <span class="jss-summary-item-val" data-jss-contribution></span>
+          </div>
+
+          <!-- Bonus Month Row -->
+          <div class="jss-summary-item" data-jss-bonus-row hidden>
+            <div class="jss-summary-item-left">
+              <span class="jss-bullet jss-bullet-subdued"></span>
+              <div>
+                <p class="jss-summary-item-label">Bonus of Final Month</p>
+                <p class="jss-summary-item-sublabel" data-jss-bonus-sub></p>
+              </div>
+            </div>
+            <span class="jss-summary-item-val" data-jss-bonus></span>
+          </div>
+
+          <!-- Hero Dark Gift Card -->
+          <div class="jss-hero-gift-card" data-jss-gift-card hidden>
+            <div class="jss-hero-gift-left">
+              <p class="jss-hero-gift-name" data-jss-gift-name>Free Diamond Pendant</p>
+              <p class="jss-hero-gift-tagline">(Exclusive Gift just for you)</p>
+            </div>
+            <div class="jss-hero-gift-center" data-jss-gift-img-wrap hidden>
+              <img class="jss-hero-gift-img" data-jss-gift-img alt="Free gift thumbnail" width="40" height="40" />
+            </div>
+            <div class="jss-hero-gift-right">
+              <span class="jss-hero-gift-value" data-jss-gift-value></span>
+            </div>
+          </div>
+
+          <!-- Total Benefit Value Row -->
+          <div class="jss-summary-item jss-summary-item-highlight">
+            <div class="jss-summary-item-left">
+              <span class="jss-bullet jss-bullet-success"></span>
+              <div>
+                <p class="jss-summary-item-label jss-label-success">Total Benefit Value</p>
+                <p class="jss-summary-item-sublabel" data-jss-benefit-sub></p>
+              </div>
+            </div>
+            <span class="jss-summary-item-val jss-val-success" data-jss-benefit></span>
+          </div>
+
+          <!-- You Actually Spend Row -->
+          <div class="jss-summary-spend-row">
+            <span>You Actually Spend</span>
+            <span data-jss-spend></span>
+          </div>
+        </div>
+
+        <!-- Early Redemption Flexibility Grid -->
+        <div class="jss-redemption-section" data-jss-redemption-section hidden>
+          <h3 class="jss-redemption-heading" data-jss-redemption-title>
+            Need Flexibility? Redeem Early After 6 Months
+          </h3>
+          <div class="jss-redemption-grid" data-jss-redemption-grid>
+            <!-- 2x2 grid populated dynamically via JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Savings Scheme Widget",
+  "target": "section",
+  "enabled_on": {
+    "templates": ["product"]
+  },
+  "stylesheet": "savings-scheme.css",
+  "javascript": "savings-scheme.js",
+  "settings": [
+    {
+      "type": "text",
+      "id": "app_url",
+      "label": "App URL",
+      "info": "Base URL of the app backend, e.g. https://your-app.example.com"
+    }
+  ]
+}
+{% endschema %}

@@ -35,6 +35,9 @@
   padding: 0 clamp(1rem, 2vw, 2rem);
   font-family: var(--jss-font-sans);
   color: var(--jss-text-main);
+  /* Defensive: nothing inside this breakout should ever force the page to
+     scroll horizontally (e.g. a popover/panel positioned near the edge). */
+  overflow-x: hidden;
 }
 
 .jss-widget * {
@@ -54,7 +57,7 @@
 .jss-loading,
 .jss-error {
   padding: 2rem;
-  font-size: 0.95rem;
+  font-size: 1.235rem;
   text-align: center;
   color: var(--jss-text-muted);
 }
@@ -141,7 +144,7 @@
 .jss-eyebrow {
   display: block;
   font-family: var(--jss-font-cinzel);
-  font-size: 0.68rem;
+  font-size: 0.884rem;
   font-weight: 600;
   letter-spacing: 0.25em;
   text-transform: uppercase;
@@ -149,7 +152,7 @@
 }
 
 .jss-eyebrow-small {
-  font-size: 0.62rem;
+  font-size: 0.806rem;
   letter-spacing: 0.2em;
   color: var(--jss-text-muted);
 }
@@ -157,7 +160,7 @@
 .jss-title {
   margin: 0.15rem 0 0;
   font-family: var(--jss-font-serif);
-  font-size: 1.7rem;
+  font-size: 2.21rem;
   font-weight: 400;
   letter-spacing: 0.01em;
   color: var(--jss-ebony);
@@ -168,7 +171,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.75rem;
+  font-size: 0.975rem;
   font-weight: 500;
   color: #44403c;
   background: rgba(243, 239, 232, 0.8);
@@ -189,7 +192,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 0.68rem;
+  font-size: 0.884rem;
   font-weight: 700;
   color: var(--jss-emerald);
   background: var(--jss-emerald-light);
@@ -216,7 +219,7 @@
 
 .jss-amount-card-label {
   font-family: var(--jss-font-cinzel);
-  font-size: 0.68rem;
+  font-size: 0.884rem;
   font-weight: 600;
   letter-spacing: 0.25em;
   color: var(--jss-text-muted);
@@ -232,7 +235,7 @@
 
 .jss-amount-card-value {
   font-family: var(--jss-font-serif);
-  font-size: 2.75rem;
+  font-size: 3.575rem;
   font-weight: 500;
   color: var(--jss-ebony);
   line-height: 1.1;
@@ -242,7 +245,7 @@
 
 .jss-amount-card-note {
   margin: 0.5rem 0 0;
-  font-size: 0.75rem;
+  font-size: 0.975rem;
   color: var(--jss-text-muted);
   font-weight: 500;
   letter-spacing: 0.01em;
@@ -287,6 +290,8 @@
 
 .jss-milestone-marker svg {
   display: block;
+  width: 14px;
+  height: 14px;
 }
 
 .jss-milestone-marker[data-active="true"] {
@@ -363,7 +368,7 @@
 .jss-slider-labels {
   display: flex;
   justify-content: space-between;
-  font-size: 0.75rem;
+  font-size: 0.975rem;
   color: var(--jss-text-muted);
   font-weight: 500;
 }
@@ -382,7 +387,7 @@
 }
 
 .jss-block-hint {
-  font-size: 0.72rem;
+  font-size: 0.936rem;
   color: var(--jss-text-muted);
 }
 
@@ -411,7 +416,7 @@
   top: -9px;
   background: var(--jss-emerald);
   color: #ffffff;
-  font-size: 0.62rem;
+  font-size: 0.806rem;
   font-weight: 700;
   letter-spacing: 0.05em;
   padding: 1px 7px;
@@ -429,7 +434,7 @@
   border-radius: 12px;
   background: #ffffff;
   color: var(--jss-ebony);
-  font-size: 0.88rem;
+  font-size: 1.144rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -519,7 +524,7 @@
 
 .jss-gift-tier-name {
   margin: 0;
-  font-size: 0.78rem;
+  font-size: 1.014rem;
   font-weight: 700;
   color: var(--jss-ebony);
   letter-spacing: -0.005em;
@@ -531,7 +536,7 @@
 
 .jss-gift-tier-badge {
   flex-shrink: 0;
-  font-size: 0.65rem;
+  font-size: 0.845rem;
   font-weight: 700;
   color: var(--jss-gold-dark);
   background: rgba(250, 243, 232, 0.9);
@@ -548,7 +553,7 @@
 
 .jss-gift-tier-status {
   margin: 0.3rem 0 0;
-  font-size: 0.68rem;
+  font-size: 0.884rem;
   line-height: 1.4;
   color: var(--jss-text-muted);
 }
@@ -576,7 +581,7 @@
   background: linear-gradient(90deg, var(--jss-ebony) 0%, #1c1a18 50%, var(--jss-charcoal) 100%);
   color: #ffffff;
   font-family: var(--jss-font-cinzel);
-  font-size: 0.85rem;
+  font-size: 1.105rem;
   font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -606,7 +611,7 @@
   align-items: flex-start;
   justify-content: center;
   gap: 0.5rem;
-  font-size: 0.75rem;
+  font-size: 0.975rem;
   color: var(--jss-text-muted);
   cursor: pointer;
   user-select: none;
@@ -628,6 +633,8 @@
   position: fixed;
   inset: 0;
   background: rgba(15, 23, 42, 0.45);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
   z-index: 1000;
   animation: jssFadeIn 0.15s ease-out;
 }
@@ -661,7 +668,7 @@
   border: 1px solid var(--jss-border);
   border-radius: 50%;
   background: #ffffff;
-  font-size: 1.15rem;
+  font-size: 1.495rem;
   line-height: 1;
   color: var(--jss-text-muted);
   cursor: pointer;
@@ -698,14 +705,14 @@
 .jss-form-heading {
   margin: 0.15rem 0 0;
   font-family: var(--jss-font-serif);
-  font-size: 1.6rem;
+  font-size: 2.08rem;
   font-weight: 500;
   color: var(--jss-ebony);
 }
 
 .jss-form-subheading {
   margin: 0 0 0.35rem;
-  font-size: 0.8rem;
+  font-size: 1.04rem;
   line-height: 1.5;
   color: var(--jss-text-muted);
   padding-bottom: 0.85rem;
@@ -728,7 +735,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  font-size: 0.78rem;
+  font-size: 1.014rem;
   font-weight: 600;
   color: var(--jss-ebony);
 }
@@ -737,7 +744,7 @@
   padding: 0.7rem 0.85rem;
   border: 1px solid var(--jss-border);
   border-radius: 10px;
-  font-size: 0.9rem;
+  font-size: 1.17rem;
   font-weight: 400;
   font-family: var(--jss-font-sans);
   outline: none;
@@ -785,7 +792,7 @@
   border-radius: 10px 0 0 10px;
   background: var(--jss-sand);
   color: var(--jss-ebony);
-  font-size: 0.85rem;
+  font-size: 1.105rem;
   font-weight: 600;
   font-family: var(--jss-font-sans);
   cursor: pointer;
@@ -793,12 +800,12 @@
 }
 
 .jss-country-flag {
-  font-size: 1rem;
+  font-size: 1.3rem;
   line-height: 1;
 }
 
 .jss-country-caret {
-  font-size: 0.6rem;
+  font-size: 0.78rem;
   color: var(--jss-text-muted);
   margin-left: 0.1rem;
 }
@@ -824,7 +831,7 @@
   padding: 0.5rem 0.65rem;
   border: 1px solid var(--jss-border);
   border-radius: 8px;
-  font-size: 0.85rem;
+  font-size: 1.105rem;
   font-family: var(--jss-font-sans);
   outline: none;
 }
@@ -848,7 +855,7 @@
   border: none;
   background: none;
   text-align: left;
-  font-size: 0.83rem;
+  font-size: 1.079rem;
   font-family: var(--jss-font-sans);
   color: var(--jss-ebony);
   cursor: pointer;
@@ -860,7 +867,7 @@
 }
 
 .jss-country-option-flag {
-  font-size: 1rem;
+  font-size: 1.3rem;
   flex-shrink: 0;
 }
 
@@ -875,13 +882,13 @@
 .jss-country-option-dial {
   flex-shrink: 0;
   color: var(--jss-text-muted);
-  font-size: 0.78rem;
+  font-size: 1.014rem;
 }
 
 .jss-country-empty {
   padding: 0.85rem;
   text-align: center;
-  font-size: 0.8rem;
+  font-size: 1.04rem;
   color: var(--jss-text-muted);
 }
 
@@ -898,7 +905,7 @@
 
 .jss-form-error {
   color: #b91c1c;
-  font-size: 0.85rem;
+  font-size: 1.105rem;
   margin: 0;
   font-weight: 500;
 }
@@ -927,7 +934,7 @@
 
 .jss-plan-summary-label {
   font-family: var(--jss-font-cinzel);
-  font-size: 0.6rem;
+  font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.15em;
   color: var(--jss-text-muted);
@@ -936,7 +943,7 @@
 
 .jss-plan-summary-value {
   font-family: var(--jss-font-serif);
-  font-size: 1.1rem;
+  font-size: 1.43rem;
   font-weight: 600;
   color: var(--jss-ebony);
 }
@@ -950,7 +957,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  font-size: 0.72rem;
+  font-size: 0.936rem;
   color: var(--jss-text-muted);
   margin-top: -0.25rem;
 }
@@ -963,7 +970,7 @@
 
 .jss-trust-icon {
   color: var(--jss-success-color);
-  font-size: 0.75rem;
+  font-size: 0.975rem;
 }
 
 .jss-trust-dot {
@@ -987,7 +994,7 @@
   border-radius: 8px;
   color: #15803d;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 1.17rem;
   width: 100%;
 }
 
@@ -1013,7 +1020,7 @@
 }
 
 .jss-gauge-cycle {
-  font-size: 0.72rem;
+  font-size: 0.936rem;
   font-weight: 500;
   color: #57534e;
 }
@@ -1048,7 +1055,7 @@
 }
 
 .jss-gauge-label {
-  font-size: 0.62rem;
+  font-size: 0.806rem;
   font-weight: 500;
   letter-spacing: 0.02em;
   text-transform: uppercase;
@@ -1056,13 +1063,13 @@
 }
 
 .jss-gauge-value {
-  font-size: 0.8rem;
+  font-size: 1.04rem;
   font-weight: 700;
   color: var(--jss-ebony);
 }
 
 .jss-gauge-note {
-  font-size: 0.6rem;
+  font-size: 0.78rem;
   color: #a8a29e;
   font-weight: 400;
 }
@@ -1074,7 +1081,7 @@
   background: #ffffff;
   border: 1px solid var(--jss-border);
   color: #a8a29e;
-  font-size: 0.8rem;
+  font-size: 1.04rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1135,19 +1142,19 @@
 
 .jss-summary-item-label {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 1.17rem;
   font-weight: 500;
   color: var(--jss-ebony);
 }
 
 .jss-summary-item-sublabel {
   margin: 0.15rem 0 0;
-  font-size: 0.72rem;
+  font-size: 0.936rem;
   color: var(--jss-text-muted);
 }
 
 .jss-summary-item-val {
-  font-size: 1rem;
+  font-size: 1.3rem;
   font-weight: 600;
   color: var(--jss-ebony);
 }
@@ -1182,7 +1189,7 @@
 .jss-hero-gift-name {
   margin: 0;
   font-family: var(--jss-font-serif);
-  font-size: 1rem;
+  font-size: 1.3rem;
   font-weight: 500;
   color: #ffffff;
   letter-spacing: 0.01em;
@@ -1190,7 +1197,7 @@
 
 .jss-hero-gift-tagline {
   margin: 0;
-  font-size: 0.72rem;
+  font-size: 0.936rem;
   color: #d6cfc3;
 }
 
@@ -1210,7 +1217,7 @@
 
 .jss-hero-gift-value {
   font-family: var(--jss-font-serif);
-  font-size: 1.15rem;
+  font-size: 1.495rem;
   font-weight: 700;
   color: #e8c782;
   white-space: nowrap;
@@ -1223,7 +1230,7 @@
 
 .jss-val-success {
   font-family: var(--jss-font-serif);
-  font-size: 1.5rem;
+  font-size: 1.95rem;
   font-weight: 700;
   color: var(--jss-emerald);
 }
@@ -1235,7 +1242,7 @@
   justify-content: space-between;
   padding-top: 0.85rem;
   border-top: 1px solid #ece7df;
-  font-size: 0.9rem;
+  font-size: 1.17rem;
   color: var(--jss-text-muted);
   font-weight: 600;
 }
@@ -1253,7 +1260,7 @@
 .jss-redemption-heading {
   margin: 0;
   font-family: var(--jss-font-serif);
-  font-size: 1.05rem;
+  font-size: 1.365rem;
   font-weight: 500;
   color: var(--jss-ebony);
 }
@@ -1303,7 +1310,7 @@
 
 .jss-redemption-month {
   font-family: var(--jss-font-cinzel);
-  font-size: 0.65rem;
+  font-size: 0.845rem;
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -1312,7 +1319,7 @@
 
 .jss-redemption-amount {
   font-family: var(--jss-font-serif);
-  font-size: 1.05rem;
+  font-size: 1.365rem;
   font-weight: 600;
   color: var(--jss-ebony);
 }
@@ -1326,7 +1333,7 @@
   border-radius: 50%;
   border: 1px solid #cbd5e1;
   color: #64748b;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 600;
   cursor: help;
   position: relative;
@@ -1360,7 +1367,7 @@
   right: 0.5rem;
   border: none;
   background: transparent;
-  font-size: 1.1rem;
+  font-size: 1.43rem;
   line-height: 1;
   color: var(--jss-text-muted);
   cursor: pointer;
@@ -1374,7 +1381,7 @@
 .jss-redemption-popover-title {
   margin: 0 1.2rem 0.6rem 0;
   font-family: var(--jss-font-serif);
-  font-size: 1.05rem;
+  font-size: 1.365rem;
   font-weight: 600;
   color: var(--jss-ebony);
 }
@@ -1384,13 +1391,13 @@
   align-items: baseline;
   justify-content: space-between;
   gap: 0.5rem;
-  font-size: 0.85rem;
+  font-size: 1.105rem;
   color: #334155;
 }
 
 .jss-redemption-popover-note {
   margin: 0.1rem 0 0.6rem;
-  font-size: 0.7rem;
+  font-size: 0.91rem;
   color: var(--jss-text-muted);
 }
 
@@ -1401,7 +1408,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
-  font-size: 0.85rem;
+  font-size: 1.105rem;
   font-weight: 600;
   color: var(--jss-emerald);
 }

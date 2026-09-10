@@ -23,6 +23,26 @@ function sleep(ms: number) {
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { admin } = await authenticate.admin(request);
 
+  try {
+    return await handleUpload(request, admin);
+  } catch (error) {
+    if (error instanceof Response) {
+      // Let Shopify auth/redirect responses propagate normally instead of
+      // being swallowed into a JSON error the client can't handle.
+      throw error;
+    }
+    console.error("Gift image upload failed:", error);
+    return jsonError(
+      error instanceof Error ? error.message : "Upload failed. Please try again.",
+      500,
+    );
+  }
+};
+
+async function handleUpload(
+  request: Request,
+  admin: Awaited<ReturnType<typeof authenticate.admin>>["admin"],
+) {
   const formData = await request.formData();
   const file = formData.get("file");
 
@@ -169,4 +189,4 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 
   return Response.json({ success: true, url: imageUrl });
-};
+}

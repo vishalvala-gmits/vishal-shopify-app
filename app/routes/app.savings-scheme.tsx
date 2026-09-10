@@ -151,7 +151,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   const name = String(formData.get("name") ?? "");
   const durationMonths = Number(formData.get("durationMonths"));
-  const bonusEnabled = formData.get("bonusEnabled") === "on";
+  // Bonus month is always on — every scheme includes a mandatory bonus
+  // month, there is no merchant-facing enable/disable toggle for it.
+  const bonusEnabled = true;
   const bonusMonths = Number(formData.get("bonusMonths") ?? 0);
 
   const minAmountRaw = formData.get("minAmount");
@@ -322,11 +324,16 @@ function GiftFields({ index, gift, errors }: GiftFieldsProps) {
         method: "POST",
         body,
       });
-      const result = await response.json();
+      let result: { success: boolean; message?: string; url?: string };
+      try {
+        result = await response.json();
+      } catch {
+        throw new Error("Upload failed. Please try again.");
+      }
       if (!result.success) {
         throw new Error(result.message || "Upload failed. Please try again.");
       }
-      setImageUrl(result.url);
+      setImageUrl(result.url!);
     } catch (error) {
       setImageError(
         error instanceof Error
@@ -474,9 +481,6 @@ export default function SavingsSchemeSettings() {
   const shopify = useAppBridge();
   const formRef = useRef<HTMLFormElement>(null);
 
-  const [bonusEnabled, setBonusEnabled] = useState(
-    scheme?.bonusEnabled ?? false,
-  );
   const [earlyRedemptionEnabled, setEarlyRedemptionEnabled] = useState(
     scheme?.earlyRedemptionEnabled ?? true,
   );
@@ -494,10 +498,6 @@ export default function SavingsSchemeSettings() {
     return () => node.removeEventListener("change", handler);
   };
 
-  const bonusSwitchRef = useCallback(
-    (node: Element | null) => attachSwitchListener(node, setBonusEnabled),
-    [],
-  );
   const earlyRedemptionSwitchRef = useCallback(
     (node: Element | null) =>
       attachSwitchListener(node, setEarlyRedemptionEnabled),
@@ -536,7 +536,8 @@ export default function SavingsSchemeSettings() {
             <s-stack direction="block" gap="base">
               <s-paragraph color="subdued">
                 Name the plan and set how many months customers contribute
-                for.
+                for. The plan always includes one bonus month, fully covered
+                by you, at the end of the contribution period.
               </s-paragraph>
               <s-grid gridTemplateColumns="1fr 1fr" gap="base">
                 <s-text-field
@@ -555,30 +556,17 @@ export default function SavingsSchemeSettings() {
                   required
                 />
               </s-grid>
-            </s-stack>
-          </s-section>
-
-          <s-section heading="Bonus">
-            <s-stack direction="block" gap="base">
-              <s-switch
-                ref={bonusSwitchRef}
-                name="bonusEnabled"
-                label="Bonus month"
-                defaultChecked={scheme?.bonusEnabled ?? false}
-                details="Covers one extra month's contribution as a bonus at the end of the plan"
-              />
-              {bonusEnabled && (
-                <s-box maxInlineSize="50%">
-                  <s-number-field
-                    name="bonusMonths"
-                    label="Bonus months"
-                    defaultValue={String(scheme?.bonusMonths ?? 1)}
-                    error={errors.bonusMonths?.[0]}
-                    min={1}
-                    required
-                  />
-                </s-box>
-              )}
+              <s-box maxInlineSize="50%">
+                <s-number-field
+                  name="bonusMonths"
+                  label="Bonus months"
+                  defaultValue={String(scheme?.bonusMonths ?? 1)}
+                  error={errors.bonusMonths?.[0]}
+                  details="Number of extra months covered as a bonus at the end of the plan"
+                  min={1}
+                  required
+                />
+              </s-box>
             </s-stack>
           </s-section>
 

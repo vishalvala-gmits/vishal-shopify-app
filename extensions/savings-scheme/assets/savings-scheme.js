@@ -282,12 +282,19 @@
       var totMonthsAll = s.durationMonths + (s.bonusEnabled ? s.bonusMonths : 0);
       q("[data-jss-tenure-label]").textContent = "Fixed " + totMonthsAll + "-Month Tenure";
 
+      var GIFT_ICON_SVG =
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+        '<path d="M20 12v10H4V12"></path><path d="M2 7h20v5H2z"></path><path d="M12 22V7"></path>' +
+        '<path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>' +
+        "</svg>";
+
       mContainer.innerHTML = "";
       var giftMarkers = gifts.map(function (gift) {
         var gt = gift.minimumContributionToUnlock != null ? gift.minimumContributionToUnlock : s.minAmount;
         var rng = s.maxAmount - s.minAmount;
         var pct = rng > 0 ? Math.min(100, Math.max(0, ((gt - s.minAmount) / rng) * 100)) : 50;
-        var marker = el("div", "jss-milestone-marker", "🎁");
+        var marker = el("div", "jss-milestone-marker");
+        marker.innerHTML = GIFT_ICON_SVG;
         marker.style.left = pct + "%";
         marker.title = (gift.name || "Free Gift") + (gift.value ? " worth " + fmt(gift.value, sym) : "");
         mContainer.appendChild(marker);
@@ -304,12 +311,6 @@
         w.appendChild(b);
         pContainer.appendChild(w);
       });
-
-      var GIFT_ICON_SVG =
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
-        '<path d="M20 12v10H4V12"></path><path d="M2 7h20v5H2z"></path><path d="M12 22V7"></path>' +
-        '<path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>' +
-        "</svg>";
 
       var gTiersContainer = q("[data-jss-gift-tiers]");
       var gTiersLabel = q("[data-jss-gift-tiers-label]");
@@ -440,7 +441,20 @@
         popover.querySelector("[data-jss-popover-payment]").textContent = fmt(data.totalPayment, sym);
         popover.querySelector("[data-jss-popover-payment-note]").textContent = "(" + data.installments + " installment" + (data.installments === 1 ? "" : "s") + ")";
         popover.querySelector("[data-jss-popover-bonus]").textContent = fmt(data.bonusBenefit, sym);
-        popover.querySelector("[data-jss-popover-bonus-note]").textContent = "(pro-rated benefit for early redemption)";
+        popover.querySelector("[data-jss-popover-bonus-note]").textContent = data.isFinalMonth
+          ? "(100% of one installment value)"
+          : "(pro-rated benefit for early redemption)";
+
+        var giftRow = popover.querySelector("[data-jss-popover-gift-row]");
+        if (data.giftValue > 0) {
+          giftRow.hidden = false;
+          popover.querySelector("[data-jss-popover-gift]").textContent = fmt(data.giftValue, sym);
+          popover.querySelector("[data-jss-popover-gift-note]").textContent =
+            "(" + (data.giftName ? "Free " + data.giftName : "Promotional gift") + ")";
+        } else {
+          giftRow.hidden = true;
+        }
+
         popover.querySelector("[data-jss-popover-worth-label]").textContent = "You can buy jewellery worth:";
         popover.querySelector("[data-jss-popover-worth]").textContent = fmt(data.jewelleryWorth, sym) + " (after " + ord(data.month) + " month)";
 
@@ -505,14 +519,22 @@
 
         var contrib = val * s.durationMonths;
         var bonus = s.bonusEnabled ? val * s.bonusMonths : 0;
-        // Gift value is a promotional benefit only, never folded into totalBenefit.
+        // Cash-only benefit (contribution + bonus month) - kept separate from
+        // gift value since it also drives the early-redemption bonus pool
+        // math below, which must stay cash-only.
         var benefit = contrib + bonus;
         var totMonths = s.durationMonths + (s.bonusEnabled ? s.bonusMonths : 0);
+
+        var eligibleGiftsAtVal = gifts.filter(function (g) { return isGiftEligible(g, val); });
+        var eligibleGiftValue = eligibleGiftsAtVal.reduce(function (sum, g) { return sum + (g.value || 0); }, 0);
+        // Total Benefit Value shown to the customer includes any gift(s)
+        // unlocked at this contribution amount, on top of the cash benefit.
+        var totalBenefitWithGift = benefit + eligibleGiftValue;
 
         q("[data-jss-contribution]").textContent = fmt(contrib, sym);
         q("[data-jss-contribution-sub]").textContent = "(" + s.durationMonths + " monthly Payments)";
         q("[data-jss-spend]").textContent = fmt(contrib, sym);
-        q("[data-jss-benefit]").textContent = fmt(benefit, sym);
+        q("[data-jss-benefit]").textContent = fmt(totalBenefitWithGift, sym);
         q("[data-jss-benefit-sub]").textContent = "(After " + totMonths + " Months)";
 
         var bRow = q("[data-jss-bonus-row]");
@@ -571,7 +593,10 @@
             var pool = benefit - contrib;
             var step = (m - minM) / Math.max(1, totMonths - minM);
             var bonusBenefit = Math.round(pool * Math.pow(step, 1.45));
-            var jewelleryWorth = totalPayment + bonusBenefit;
+            // Gifts are unlocked by contribution amount, not by how many
+            // months have been paid - so the full eligible gift value
+            // applies at every early-redemption month once unlocked.
+            var jewelleryWorth = totalPayment + bonusBenefit + eligibleGiftValue;
 
             var c = el("div", "jss-redemption-card");
             c.tabIndex = 0;
@@ -590,6 +615,9 @@
               month: m,
               totalPayment: totalPayment,
               bonusBenefit: bonusBenefit,
+              isFinalMonth: m === totMonths,
+              giftValue: eligibleGiftValue,
+              giftName: eligibleGiftsAtVal.length === 1 ? eligibleGiftsAtVal[0].name : null,
               jewelleryWorth: jewelleryWorth,
               installments: paidMonths,
             });
@@ -617,6 +645,13 @@
       function openModal() {
         modal.hidden = false;
         modalBackdrop.hidden = false;
+        // Compensate for the vertical scrollbar this removes, so the page
+        // doesn't shift/reflow horizontally by the scrollbar's width while
+        // the modal is open.
+        var scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+        if (scrollbarWidth > 0) {
+          document.body.style.paddingRight = scrollbarWidth + "px";
+        }
         document.body.style.overflow = "hidden";
       }
 
@@ -624,6 +659,7 @@
         modal.hidden = true;
         modalBackdrop.hidden = true;
         document.body.style.overflow = "";
+        document.body.style.paddingRight = "";
       }
 
       cta.addEventListener("click", function () {

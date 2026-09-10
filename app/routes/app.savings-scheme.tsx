@@ -600,7 +600,7 @@ export default function SavingsSchemeSettings() {
                   label="Quick select amounts"
                   defaultValue={presetAmountsDefault}
                   error={errors.presetAmounts?.[0]}
-                  details="Comma separated, e.g. 10000, 30000, 50000, 80000"
+                  details="Comma separated, up to 4 amounts, e.g. 10000, 30000, 50000, 80000"
                 />
                 <s-number-field
                   name="popularAmount"

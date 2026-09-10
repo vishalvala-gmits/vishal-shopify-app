@@ -1,6 +1,7 @@
 import type { Gift } from "./savingsSchemeCalculator.server";
 
 export const MAX_GIFTS = 2;
+export const MAX_PRESET_AMOUNTS = 4;
 
 export type SchemeValidationInput = {
   name: string;
@@ -56,6 +57,13 @@ export function validateSavingsSchemeInput(
   }
 
   const presetAmounts = input.presetAmounts ?? [];
+  if (presetAmounts.length > MAX_PRESET_AMOUNTS) {
+    addError(
+      errors,
+      "presetAmounts",
+      `A maximum of ${MAX_PRESET_AMOUNTS} preset amounts is supported.`,
+    );
+  }
   const seenPresets = new Set<number>();
   for (const preset of presetAmounts) {
     if (seenPresets.has(preset)) {

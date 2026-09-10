@@ -248,14 +248,18 @@ export default function SavingsSchemeEnquiries() {
                       <s-text type="strong">{enquiry.customerName}</s-text>
                     </s-table-cell>
                     <s-table-cell>
-                      <s-stack direction="inline" gap="small-200" alignItems="center">
-                        <s-thumbnail
-                          src={enquiry.product?.imageUrl}
-                          alt={enquiry.product?.title ?? "Product"}
-                          size="small-200"
-                        />
-                        <s-text>{enquiry.product?.title ?? "Unknown product"}</s-text>
-                      </s-stack>
+                      {enquiry.shopifyProductId ? (
+                        <s-stack direction="inline" gap="small-200" alignItems="center">
+                          <s-thumbnail
+                            src={enquiry.product?.imageUrl}
+                            alt={enquiry.product?.title ?? "Product"}
+                            size="small-200"
+                          />
+                          <s-text>{enquiry.product?.title ?? "Unknown product"}</s-text>
+                        </s-stack>
+                      ) : (
+                        <s-text color="subdued">—</s-text>
+                      )}
                     </s-table-cell>
                     <s-table-cell>{enquiry.customerPhone ?? "—"}</s-table-cell>
                     <s-table-cell>{enquiry.customerEmail ?? "—"}</s-table-cell>

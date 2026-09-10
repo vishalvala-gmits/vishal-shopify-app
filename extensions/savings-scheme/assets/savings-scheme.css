@@ -30,14 +30,11 @@
   width: 70vw;
   margin-left: calc(50% - 35vw);
   margin-right: calc(50% - 35vw);
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
+  margin-top: clamp(2.5rem, 5vw, 4rem);
+  margin-bottom: clamp(2.5rem, 5vw, 4rem);
   padding: 0 clamp(1rem, 2vw, 2rem);
   font-family: var(--jss-font-sans);
   color: var(--jss-text-main);
-  /* Defensive: nothing inside this breakout should ever force the page to
-     scroll horizontally (e.g. a popover/panel positioned near the edge). */
-  overflow-x: hidden;
 }
 
 .jss-widget * {
@@ -57,7 +54,7 @@
 .jss-loading,
 .jss-error {
   padding: 2rem;
-  font-size: 1.235rem;
+  font-size: 1.633rem;
   text-align: center;
   color: var(--jss-text-muted);
 }
@@ -89,17 +86,21 @@
 .jss-content {
   display: block;
   width: 100%;
+  /* Defensive: nothing inside this breakout should ever force the page to
+     scroll horizontally (e.g. a popover/panel positioned near the edge).
+     Scoped to the content only (not the whole .jss-widget root), since the
+     modal/backdrop/popover are viewport-fixed siblings that must never be
+     clipped by an overflow-hidden ancestor. */
+  overflow-x: hidden;
 }
 
-/* Elevated Split Canvas: single elevated card, 7/5 column split */
+/* Split Canvas: 7/5 column layout. No card background/shadow of its own -
+   it always blends into whatever background the surrounding page/theme
+   has, on any store or page this widget is placed on, instead of showing
+   a fixed card color that could mismatch. */
 .jss-canvas {
   display: grid;
   grid-template-columns: 7fr 5fr;
-  background: var(--jss-card);
-  border: 1px solid var(--jss-border);
-  border-radius: 24px;
-  box-shadow: 0 20px 45px -12px rgba(20, 19, 18, 0.08), 0 1px 3px 0 rgba(201, 154, 78, 0.08);
-  overflow: hidden;
 }
 
 @media (max-width: 900px) {
@@ -117,6 +118,10 @@
 
 .jss-col-controls {
   border-right: 1px solid var(--jss-border);
+  /* Fixed, natural gaps only - never redistribute spacing based on the
+     right column's height (e.g. when the hero gift card appears/
+     disappears, or the redemption grid grows). Left column content must
+     stay visually stable regardless of what happens on the right. */
 }
 
 @media (max-width: 900px) {
@@ -126,9 +131,6 @@
   }
 }
 
-.jss-col-summary {
-  background: linear-gradient(180deg, #fdfcfa 0%, var(--jss-sand) 100%);
-}
 
 /* Region head: eyebrow + title + status pill */
 .jss-region-head {
@@ -144,7 +146,7 @@
 .jss-eyebrow {
   display: block;
   font-family: var(--jss-font-cinzel);
-  font-size: 0.884rem;
+  font-size: 1.17rem;
   font-weight: 600;
   letter-spacing: 0.25em;
   text-transform: uppercase;
@@ -152,7 +154,7 @@
 }
 
 .jss-eyebrow-small {
-  font-size: 0.806rem;
+  font-size: 1.066rem;
   letter-spacing: 0.2em;
   color: var(--jss-text-muted);
 }
@@ -160,7 +162,7 @@
 .jss-title {
   margin: 0.15rem 0 0;
   font-family: var(--jss-font-serif);
-  font-size: 2.21rem;
+  font-size: 2.922rem;
   font-weight: 400;
   letter-spacing: 0.01em;
   color: var(--jss-ebony);
@@ -171,7 +173,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.975rem;
+  font-size: 1.289rem;
   font-weight: 500;
   color: #44403c;
   background: rgba(243, 239, 232, 0.8);
@@ -192,7 +194,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 0.884rem;
+  font-size: 1.17rem;
   font-weight: 700;
   color: var(--jss-emerald);
   background: var(--jss-emerald-light);
@@ -219,7 +221,7 @@
 
 .jss-amount-card-label {
   font-family: var(--jss-font-cinzel);
-  font-size: 0.884rem;
+  font-size: 1.17rem;
   font-weight: 600;
   letter-spacing: 0.25em;
   color: var(--jss-text-muted);
@@ -235,7 +237,7 @@
 
 .jss-amount-card-value {
   font-family: var(--jss-font-serif);
-  font-size: 3.575rem;
+  font-size: 4.728rem;
   font-weight: 500;
   color: var(--jss-ebony);
   line-height: 1.1;
@@ -245,7 +247,7 @@
 
 .jss-amount-card-note {
   margin: 0.5rem 0 0;
-  font-size: 0.975rem;
+  font-size: 1.289rem;
   color: var(--jss-text-muted);
   font-weight: 500;
   letter-spacing: 0.01em;
@@ -295,11 +297,11 @@
 }
 
 .jss-milestone-marker[data-active="true"] {
-  background: var(--jss-emerald-light);
-  border-color: var(--jss-emerald);
-  color: var(--jss-emerald);
+  background: color-mix(in srgb, var(--jss-primary-color) 12%, white);
+  border-color: var(--jss-primary-color);
+  color: var(--jss-primary-color);
   transform: translateX(-50%) scale(1.08);
-  box-shadow: 0 0 0 4px rgba(22, 91, 60, 0.15), 0 2px 5px rgba(22, 91, 60, 0.25);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--jss-primary-color) 15%, transparent), 0 2px 5px color-mix(in srgb, var(--jss-primary-color) 25%, transparent);
 }
 
 .jss-slider-container {
@@ -314,15 +316,15 @@
   border-radius: 9999px;
   background: linear-gradient(
     to right,
-    var(--jss-gold) 0%,
-    var(--jss-gold) var(--jss-fill, 0%),
+    var(--jss-primary-color) 0%,
+    var(--jss-primary-color) var(--jss-fill, 0%),
     #e4ddd2 var(--jss-fill, 0%),
     #e4ddd2 100%
   );
   outline: none;
   -webkit-appearance: none;
   appearance: none;
-  accent-color: var(--jss-gold);
+  accent-color: var(--jss-primary-color);
   cursor: pointer;
 }
 
@@ -333,7 +335,7 @@
   height: 26px;
   border-radius: 50%;
   background: var(--jss-ebony);
-  border: 2px solid var(--jss-gold);
+  border: 2px solid var(--jss-primary-color);
   box-shadow: 0 4px 14px rgba(20, 19, 18, 0.3), inset 0 0 0 3px #faf7f2;
   cursor: grab;
   transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s ease;
@@ -346,7 +348,7 @@
 .jss-slider::-webkit-slider-thumb:active {
   cursor: grabbing;
   transform: scale(1.18);
-  box-shadow: 0 0 0 8px rgba(201, 154, 78, 0.2), 0 6px 18px rgba(20, 19, 18, 0.4);
+  box-shadow: 0 0 0 8px color-mix(in srgb, var(--jss-primary-color) 20%, transparent), 0 6px 18px rgba(20, 19, 18, 0.4);
 }
 
 .jss-slider::-moz-range-thumb {
@@ -354,7 +356,7 @@
   height: 26px;
   border-radius: 50%;
   background: var(--jss-ebony);
-  border: 2px solid var(--jss-gold);
+  border: 2px solid var(--jss-primary-color);
   box-shadow: 0 4px 14px rgba(20, 19, 18, 0.3), inset 0 0 0 3px #faf7f2;
   cursor: pointer;
 }
@@ -368,7 +370,7 @@
 .jss-slider-labels {
   display: flex;
   justify-content: space-between;
-  font-size: 0.975rem;
+  font-size: 1.289rem;
   color: var(--jss-text-muted);
   font-weight: 500;
 }
@@ -387,7 +389,7 @@
 }
 
 .jss-block-hint {
-  font-size: 0.936rem;
+  font-size: 1.237rem;
   color: var(--jss-text-muted);
 }
 
@@ -416,7 +418,7 @@
   top: -9px;
   background: var(--jss-emerald);
   color: #ffffff;
-  font-size: 0.806rem;
+  font-size: 1.066rem;
   font-weight: 700;
   letter-spacing: 0.05em;
   padding: 1px 7px;
@@ -429,12 +431,12 @@
 
 .jss-preset-btn {
   width: 100%;
-  padding: 0.7rem 0.5rem;
+  padding: 2rem 0.85rem;
   border: 1px solid var(--jss-border);
   border-radius: 12px;
   background: #ffffff;
   color: var(--jss-ebony);
-  font-size: 1.144rem;
+  font-size: 1.513rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -442,13 +444,13 @@
 }
 
 .jss-preset-btn:hover {
-  border-color: var(--jss-gold);
-  background: var(--jss-gold-light);
+  border-color: var(--jss-primary-color);
+  background: color-mix(in srgb, var(--jss-primary-color) 8%, white);
 }
 
 .jss-preset-btn[data-active="true"] {
-  border-color: var(--jss-ebony);
-  background: var(--jss-ebony);
+  border-color: var(--jss-primary-color);
+  background: var(--jss-primary-color);
   color: #ffffff;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
@@ -476,13 +478,15 @@
   align-items: flex-start;
   gap: 0.85rem;
   overflow: hidden;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
+/* Border-color-only highlight when this specific gift is eligible at the
+   current slider amount. Border width and card text never change, so this
+   cannot affect this card's own size or the column's overall spacing. */
 .jss-gift-tier-card[data-unlocked="true"] {
-  border: 2px solid var(--jss-emerald);
-  background: rgba(236, 246, 240, 0.5);
-  box-shadow: 0 2px 8px rgba(22, 91, 60, 0.1);
+  border-color: var(--jss-emerald);
+  background: rgba(236, 246, 240, 0.4);
 }
 
 .jss-gift-tier-icon {
@@ -504,12 +508,6 @@
   height: 20px;
 }
 
-.jss-gift-tier-card[data-unlocked="true"] .jss-gift-tier-icon {
-  background: var(--jss-emerald);
-  border-color: #1f7a52;
-  color: #ffffff;
-}
-
 .jss-gift-tier-body {
   flex: 1;
   min-width: 0;
@@ -524,19 +522,15 @@
 
 .jss-gift-tier-name {
   margin: 0;
-  font-size: 1.014rem;
+  font-size: 1.341rem;
   font-weight: 700;
   color: var(--jss-ebony);
   letter-spacing: -0.005em;
 }
 
-.jss-gift-tier-card[data-unlocked="true"] .jss-gift-tier-name {
-  color: #0d3d29;
-}
-
 .jss-gift-tier-badge {
   flex-shrink: 0;
-  font-size: 0.845rem;
+  font-size: 1.118rem;
   font-weight: 700;
   color: var(--jss-gold-dark);
   background: rgba(250, 243, 232, 0.9);
@@ -545,22 +539,11 @@
   border-radius: 6px;
 }
 
-.jss-gift-tier-card[data-unlocked="true"] .jss-gift-tier-badge {
-  color: #0d3d29;
-  background: var(--jss-emerald-light);
-  border-color: var(--jss-emerald-border);
-}
-
 .jss-gift-tier-status {
   margin: 0.3rem 0 0;
-  font-size: 0.884rem;
+  font-size: 1.17rem;
   line-height: 1.4;
   color: var(--jss-text-muted);
-}
-
-.jss-gift-tier-card[data-unlocked="true"] .jss-gift-tier-status {
-  color: #1f7a52;
-  font-weight: 500;
 }
 
 /* Primary CTA Button */
@@ -568,7 +551,6 @@
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
-  margin-top: 0.25rem;
   padding-top: 1.25rem;
   border-top: 1px solid var(--jss-border);
 }
@@ -576,23 +558,22 @@
 .jss-cta-btn {
   width: 100%;
   padding: 1.05rem 1.25rem;
-  border: 1px solid rgba(201, 154, 78, 0.5);
+  border: 1px solid var(--jss-primary-color);
   border-radius: 12px;
-  background: linear-gradient(90deg, var(--jss-ebony) 0%, #1c1a18 50%, var(--jss-charcoal) 100%);
+  background: var(--jss-primary-color);
   color: #ffffff;
   font-family: var(--jss-font-cinzel);
-  font-size: 1.105rem;
+  font-size: 1.462rem;
   font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   cursor: pointer;
-  box-shadow: 0 30px 60px -15px rgba(20, 19, 18, 0.12), 0 0 0 1px rgba(201, 154, 78, 0.2);
+  box-shadow: 0 20px 45px -15px color-mix(in srgb, var(--jss-primary-color) 45%, transparent), 0 0 0 1px color-mix(in srgb, var(--jss-primary-color) 20%, transparent);
   transition: opacity 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease, border-color 0.2s ease;
 }
 
 .jss-cta-btn:hover {
-  border-color: var(--jss-gold);
-  opacity: 0.94;
+  opacity: 0.9;
 }
 
 .jss-cta-btn:active {
@@ -611,7 +592,7 @@
   align-items: flex-start;
   justify-content: center;
   gap: 0.5rem;
-  font-size: 0.975rem;
+  font-size: 1.289rem;
   color: var(--jss-text-muted);
   cursor: pointer;
   user-select: none;
@@ -632,9 +613,9 @@
 .jss-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.45);
-  -webkit-backdrop-filter: blur(4px);
-  backdrop-filter: blur(4px);
+  background: rgba(15, 23, 42, 0.4);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
   z-index: 1000;
   animation: jssFadeIn 0.15s ease-out;
 }
@@ -653,7 +634,23 @@
   border-radius: 20px;
   padding: 2rem;
   box-shadow: 0 30px 60px -15px rgba(20, 19, 18, 0.25), 0 0 0 1px rgba(201, 154, 78, 0.15);
-  animation: jssFadeIn 0.2s ease-out;
+  animation: jssModalFadeIn 0.2s ease-out;
+}
+
+/* Dedicated keyframes (instead of the shared jssFadeIn) because this
+   element is centered via transform: translate(-50%, -50%) - an animation
+   that only sets translateY would overwrite that centering transform for
+   its duration, making the modal flash in off-center before snapping to
+   place once the animation ends. */
+@keyframes jssModalFadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% - 6px));
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
 }
 
 .jss-modal-close {
@@ -668,7 +665,7 @@
   border: 1px solid var(--jss-border);
   border-radius: 50%;
   background: #ffffff;
-  font-size: 1.495rem;
+  font-size: 1.977rem;
   line-height: 1;
   color: var(--jss-text-muted);
   cursor: pointer;
@@ -705,14 +702,14 @@
 .jss-form-heading {
   margin: 0.15rem 0 0;
   font-family: var(--jss-font-serif);
-  font-size: 2.08rem;
+  font-size: 2.751rem;
   font-weight: 500;
   color: var(--jss-ebony);
 }
 
 .jss-form-subheading {
   margin: 0 0 0.35rem;
-  font-size: 1.04rem;
+  font-size: 1.375rem;
   line-height: 1.5;
   color: var(--jss-text-muted);
   padding-bottom: 0.85rem;
@@ -735,7 +732,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  font-size: 1.014rem;
+  font-size: 1.341rem;
   font-weight: 600;
   color: var(--jss-ebony);
 }
@@ -744,7 +741,7 @@
   padding: 0.7rem 0.85rem;
   border: 1px solid var(--jss-border);
   border-radius: 10px;
-  font-size: 1.17rem;
+  font-size: 1.548rem;
   font-weight: 400;
   font-family: var(--jss-font-sans);
   outline: none;
@@ -792,7 +789,7 @@
   border-radius: 10px 0 0 10px;
   background: var(--jss-sand);
   color: var(--jss-ebony);
-  font-size: 1.105rem;
+  font-size: 1.462rem;
   font-weight: 600;
   font-family: var(--jss-font-sans);
   cursor: pointer;
@@ -800,12 +797,12 @@
 }
 
 .jss-country-flag {
-  font-size: 1.3rem;
+  font-size: 1.719rem;
   line-height: 1;
 }
 
 .jss-country-caret {
-  font-size: 0.78rem;
+  font-size: 1.032rem;
   color: var(--jss-text-muted);
   margin-left: 0.1rem;
 }
@@ -831,7 +828,7 @@
   padding: 0.5rem 0.65rem;
   border: 1px solid var(--jss-border);
   border-radius: 8px;
-  font-size: 1.105rem;
+  font-size: 1.462rem;
   font-family: var(--jss-font-sans);
   outline: none;
 }
@@ -855,7 +852,7 @@
   border: none;
   background: none;
   text-align: left;
-  font-size: 1.079rem;
+  font-size: 1.427rem;
   font-family: var(--jss-font-sans);
   color: var(--jss-ebony);
   cursor: pointer;
@@ -867,7 +864,7 @@
 }
 
 .jss-country-option-flag {
-  font-size: 1.3rem;
+  font-size: 1.719rem;
   flex-shrink: 0;
 }
 
@@ -882,13 +879,13 @@
 .jss-country-option-dial {
   flex-shrink: 0;
   color: var(--jss-text-muted);
-  font-size: 1.014rem;
+  font-size: 1.341rem;
 }
 
 .jss-country-empty {
   padding: 0.85rem;
   text-align: center;
-  font-size: 1.04rem;
+  font-size: 1.375rem;
   color: var(--jss-text-muted);
 }
 
@@ -905,7 +902,7 @@
 
 .jss-form-error {
   color: #b91c1c;
-  font-size: 1.105rem;
+  font-size: 1.462rem;
   margin: 0;
   font-weight: 500;
 }
@@ -934,7 +931,7 @@
 
 .jss-plan-summary-label {
   font-family: var(--jss-font-cinzel);
-  font-size: 0.78rem;
+  font-size: 1.032rem;
   font-weight: 600;
   letter-spacing: 0.15em;
   color: var(--jss-text-muted);
@@ -943,7 +940,7 @@
 
 .jss-plan-summary-value {
   font-family: var(--jss-font-serif);
-  font-size: 1.43rem;
+  font-size: 1.891rem;
   font-weight: 600;
   color: var(--jss-ebony);
 }
@@ -957,7 +954,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  font-size: 0.936rem;
+  font-size: 1.237rem;
   color: var(--jss-text-muted);
   margin-top: -0.25rem;
 }
@@ -970,7 +967,7 @@
 
 .jss-trust-icon {
   color: var(--jss-success-color);
-  font-size: 0.975rem;
+  font-size: 1.289rem;
 }
 
 .jss-trust-dot {
@@ -994,7 +991,7 @@
   border-radius: 8px;
   color: #15803d;
   font-weight: 600;
-  font-size: 1.17rem;
+  font-size: 1.548rem;
   width: 100%;
 }
 
@@ -1020,7 +1017,7 @@
 }
 
 .jss-gauge-cycle {
-  font-size: 0.936rem;
+  font-size: 1.237rem;
   font-weight: 500;
   color: #57534e;
 }
@@ -1055,7 +1052,7 @@
 }
 
 .jss-gauge-label {
-  font-size: 0.806rem;
+  font-size: 1.066rem;
   font-weight: 500;
   letter-spacing: 0.02em;
   text-transform: uppercase;
@@ -1063,13 +1060,13 @@
 }
 
 .jss-gauge-value {
-  font-size: 1.04rem;
+  font-size: 1.375rem;
   font-weight: 700;
   color: var(--jss-ebony);
 }
 
 .jss-gauge-note {
-  font-size: 0.78rem;
+  font-size: 1.032rem;
   color: #a8a29e;
   font-weight: 400;
 }
@@ -1081,7 +1078,7 @@
   background: #ffffff;
   border: 1px solid var(--jss-border);
   color: #a8a29e;
-  font-size: 1.04rem;
+  font-size: 1.375rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1142,19 +1139,19 @@
 
 .jss-summary-item-label {
   margin: 0;
-  font-size: 1.17rem;
+  font-size: 1.548rem;
   font-weight: 500;
   color: var(--jss-ebony);
 }
 
 .jss-summary-item-sublabel {
   margin: 0.15rem 0 0;
-  font-size: 0.936rem;
+  font-size: 1.237rem;
   color: var(--jss-text-muted);
 }
 
 .jss-summary-item-val {
-  font-size: 1.3rem;
+  font-size: 1.719rem;
   font-weight: 600;
   color: var(--jss-ebony);
 }
@@ -1174,7 +1171,6 @@
   padding: 0.85rem 1.1rem;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 0.75rem;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
   animation: jssFadeIn 0.25s ease-out;
@@ -1184,12 +1180,14 @@
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
+  flex: 1;
+  min-width: 0;
 }
 
 .jss-hero-gift-name {
   margin: 0;
   font-family: var(--jss-font-serif);
-  font-size: 1.3rem;
+  font-size: 1.719rem;
   font-weight: 500;
   color: #ffffff;
   letter-spacing: 0.01em;
@@ -1197,13 +1195,8 @@
 
 .jss-hero-gift-tagline {
   margin: 0;
-  font-size: 0.936rem;
+  font-size: 1.237rem;
   color: #d6cfc3;
-}
-
-.jss-hero-gift-center {
-  display: flex;
-  align-items: center;
 }
 
 .jss-hero-gift-img {
@@ -1213,11 +1206,32 @@
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
+}
+
+/* Fallback round gift-icon badge shown when no gift image was uploaded,
+   matching the gift-tier card's badge style. */
+.jss-hero-gift-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(201, 154, 78, 0.15);
+  border: 1px solid rgba(201, 154, 78, 0.4);
+  color: var(--jss-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.jss-hero-gift-icon svg {
+  width: 20px;
+  height: 20px;
 }
 
 .jss-hero-gift-value {
   font-family: var(--jss-font-serif);
-  font-size: 1.495rem;
+  font-size: 1.977rem;
   font-weight: 700;
   color: #e8c782;
   white-space: nowrap;
@@ -1230,7 +1244,7 @@
 
 .jss-val-success {
   font-family: var(--jss-font-serif);
-  font-size: 1.95rem;
+  font-size: 2.578rem;
   font-weight: 700;
   color: var(--jss-emerald);
 }
@@ -1242,7 +1256,7 @@
   justify-content: space-between;
   padding-top: 0.85rem;
   border-top: 1px solid #ece7df;
-  font-size: 1.17rem;
+  font-size: 1.548rem;
   color: var(--jss-text-muted);
   font-weight: 600;
 }
@@ -1260,7 +1274,7 @@
 .jss-redemption-heading {
   margin: 0;
   font-family: var(--jss-font-serif);
-  font-size: 1.365rem;
+  font-size: 1.805rem;
   font-weight: 500;
   color: var(--jss-ebony);
 }
@@ -1310,7 +1324,7 @@
 
 .jss-redemption-month {
   font-family: var(--jss-font-cinzel);
-  font-size: 0.845rem;
+  font-size: 1.118rem;
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -1319,7 +1333,7 @@
 
 .jss-redemption-amount {
   font-family: var(--jss-font-serif);
-  font-size: 1.365rem;
+  font-size: 1.805rem;
   font-weight: 600;
   color: var(--jss-ebony);
 }
@@ -1333,7 +1347,7 @@
   border-radius: 50%;
   border: 1px solid #cbd5e1;
   color: #64748b;
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 600;
   cursor: help;
   position: relative;
@@ -1367,7 +1381,7 @@
   right: 0.5rem;
   border: none;
   background: transparent;
-  font-size: 1.43rem;
+  font-size: 1.891rem;
   line-height: 1;
   color: var(--jss-text-muted);
   cursor: pointer;
@@ -1381,7 +1395,7 @@
 .jss-redemption-popover-title {
   margin: 0 1.2rem 0.6rem 0;
   font-family: var(--jss-font-serif);
-  font-size: 1.365rem;
+  font-size: 1.805rem;
   font-weight: 600;
   color: var(--jss-ebony);
 }
@@ -1391,13 +1405,13 @@
   align-items: baseline;
   justify-content: space-between;
   gap: 0.5rem;
-  font-size: 1.105rem;
+  font-size: 1.462rem;
   color: #334155;
 }
 
 .jss-redemption-popover-note {
   margin: 0.1rem 0 0.6rem;
-  font-size: 0.91rem;
+  font-size: 1.204rem;
   color: var(--jss-text-muted);
 }
 
@@ -1408,7 +1422,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
-  font-size: 1.105rem;
+  font-size: 1.462rem;
   font-weight: 600;
   color: var(--jss-emerald);
 }

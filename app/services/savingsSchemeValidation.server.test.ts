@@ -75,6 +75,22 @@ describe("validateSavingsSchemeInput", () => {
     expect(errors.presetAmounts).toBeDefined();
   });
 
+  it("allows up to 4 preset amounts", () => {
+    const errors = validateSavingsSchemeInput({
+      ...validScheme,
+      presetAmounts: [3000, 5000, 10000, 19000],
+    });
+    expect(errors.presetAmounts).toBeUndefined();
+  });
+
+  it("rejects more than 4 preset amounts", () => {
+    const errors = validateSavingsSchemeInput({
+      ...validScheme,
+      presetAmounts: [2000, 3000, 5000, 10000, 19000],
+    });
+    expect(errors.presetAmounts).toBeDefined();
+  });
+
   it("requires bonusMonths >= 1 when bonus is enabled", () => {
     const errors = validateSavingsSchemeInput({ ...validScheme, bonusEnabled: true, bonusMonths: 0 });
     expect(errors.bonusMonths).toBeDefined();

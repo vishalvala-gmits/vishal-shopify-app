@@ -24,10 +24,6 @@
     return true;
   }
 
-  function amountToUnlock(gift, amt) {
-    if (isGiftEligible(gift, amt) || gift.minimumContributionToUnlock == null) return 0;
-    return Math.max(0, gift.minimumContributionToUnlock - amt);
-  }
 
   // Global country calling codes for the enquiry form's phone field. Region
   // is the ISO 3166-1 alpha-2 code, used both to render a flag emoji and to
@@ -312,14 +308,36 @@
         pContainer.appendChild(w);
       });
 
+      // Static description of a gift's unlock range - set once here and
+      // never updated again as the slider moves. This keeps the left
+      // "Guaranteed Tier Privileges" cards a fixed height/text regardless
+      // of the current contribution amount, so the column's spacing above
+      // the CONTINUE button never shifts when eligibility changes (only
+      // the right-side hero gift card and slider milestone pins are meant
+      // to react live to the slider).
+      function giftRangeDescription(gift) {
+        var hasMin = gift.minimumContributionToUnlock != null;
+        var hasMax = gift.maximumContributionToUnlock != null;
+        if (hasMin && hasMax) {
+          return "Available on plans from " + fmt(gift.minimumContributionToUnlock, sym) + " to " + fmt(gift.maximumContributionToUnlock, sym) + "/mo";
+        }
+        if (hasMin) {
+          return "Available on plans from " + fmt(gift.minimumContributionToUnlock, sym) + "/mo";
+        }
+        if (hasMax) {
+          return "Available on plans up to " + fmt(gift.maximumContributionToUnlock, sym) + "/mo";
+        }
+        return "Available on all plans";
+      }
+
       var gTiersContainer = q("[data-jss-gift-tiers]");
       var gTiersLabel = q("[data-jss-gift-tiers-label]");
-      var tierEls = [];
+      var tierCards = [];
       gTiersContainer.innerHTML = "";
       if (gifts.length) {
         gTiersContainer.hidden = false;
         gTiersLabel.hidden = false;
-        gifts.forEach(function (gift, i) {
+        gifts.forEach(function (gift) {
           var card = el("div", "jss-gift-tier-card");
 
           var icon = el("div", "jss-gift-tier-icon");
@@ -331,12 +349,11 @@
           header.appendChild(el("h4", "jss-gift-tier-name", gift.name || "Free Gift"));
           header.appendChild(el("span", "jss-gift-tier-badge", gift.value ? fmt(gift.value, sym) : ""));
           body.appendChild(header);
-          var status = el("p", "jss-gift-tier-status");
-          body.appendChild(status);
+          body.appendChild(el("p", "jss-gift-tier-status", giftRangeDescription(gift)));
           card.appendChild(body);
 
           gTiersContainer.appendChild(card);
-          tierEls.push({ card: card, status: status, gift: gift, marker: giftMarkers[i] });
+          tierCards.push({ card: card, gift: gift });
         });
       } else {
         gTiersContainer.hidden = true;
@@ -359,21 +376,26 @@
         heroList.hidden = eligible.length === 0;
         eligible.forEach(function (gift) {
           var card = el("div", "jss-hero-gift-card");
-          var left = el("div", "jss-hero-gift-left");
-          left.appendChild(el("p", "jss-hero-gift-name", gift.name || "Free Exclusive Gift"));
-          left.appendChild(el("p", "jss-hero-gift-tagline", "(Exclusive Gift just for you)"));
-          card.appendChild(left);
+
           if (gift.image) {
-            var center = el("div", "jss-hero-gift-center");
             var img = document.createElement("img");
             img.className = "jss-hero-gift-img";
             img.src = gift.image;
             img.alt = (gift.name || "Free gift") + " thumbnail";
             img.width = 40;
             img.height = 40;
-            center.appendChild(img);
-            card.appendChild(center);
+            card.appendChild(img);
+          } else {
+            var badge = el("div", "jss-hero-gift-icon");
+            badge.innerHTML = GIFT_ICON_SVG;
+            card.appendChild(badge);
           }
+
+          var left = el("div", "jss-hero-gift-left");
+          left.appendChild(el("p", "jss-hero-gift-name", gift.name || "Free Exclusive Gift"));
+          left.appendChild(el("p", "jss-hero-gift-tagline", "(Exclusive Gift just for you)"));
+          card.appendChild(left);
+
           var right = el("div", "jss-hero-gift-right");
           right.appendChild(el("span", "jss-hero-gift-value", fmt(gift.value || 0, sym)));
           card.appendChild(right);
@@ -564,17 +586,18 @@
         }
         q("[data-jss-gauge-total]").textContent = fmt(benefit, sym);
 
-        tierEls.forEach(function (t) {
+        giftMarkers.forEach(function (marker, i) {
+          var unlocked = isGiftEligible(gifts[i], val);
+          marker.setAttribute("data-active", unlocked ? "true" : "false");
+        });
+
+        // Border-color-only highlight on the specific gift-tier card that
+        // is currently eligible - text/size never changes here, only the
+        // data-unlocked attribute the CSS keys its border color off of, so
+        // this cannot reflow the column's spacing.
+        tierCards.forEach(function (t) {
           var unlocked = isGiftEligible(t.gift, val);
           t.card.setAttribute("data-unlocked", unlocked ? "true" : "false");
-          if (unlocked) {
-            t.status.textContent = "Included in your plan";
-          } else if (t.gift.maximumContributionToUnlock != null && val > t.gift.maximumContributionToUnlock) {
-            t.status.textContent = "Only available up to " + fmt(t.gift.maximumContributionToUnlock, sym) + "/mo";
-          } else {
-            t.status.textContent = "Add " + fmt(amountToUnlock(t.gift, val), sym) + " to unlock";
-          }
-          if (t.marker) t.marker.setAttribute("data-active", unlocked ? "true" : "false");
         });
 
         renderHeroGifts(val);

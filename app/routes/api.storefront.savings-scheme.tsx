@@ -5,6 +5,7 @@ import {
   buildCorsHeadersForOrigin,
   resolveShopFromRequest,
 } from "../services/resolveShop.server";
+import { parseGifts } from "../services/savingsScheme.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const shopResolution = await resolveShopFromRequest(request);
@@ -36,6 +37,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   }
 
   const { scheme } = assignment;
+  const gifts = parseGifts(scheme.gifts).filter((gift) => gift.enabled);
 
   return Response.json(
     {
@@ -49,13 +51,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         maxAmount: scheme.maxAmount,
         presetAmounts: scheme.presetAmounts,
         popularAmount: scheme.popularAmount,
-        gift: {
-          enabled: scheme.giftEnabled,
-          name: scheme.giftName,
-          value: scheme.giftValue,
-          imageUrl: scheme.giftImageUrl,
-          minAmount: scheme.giftMinAmount,
-        },
+        gifts: gifts.map((gift) => ({
+          enabled: gift.enabled,
+          name: gift.name,
+          value: gift.value,
+          image: gift.imageUrl,
+          minimumContributionToUnlock: gift.minAmount,
+          maximumContributionToUnlock: gift.maxAmount,
+        })),
         earlyRedemption: {
           enabled: scheme.earlyRedemptionEnabled,
           minMonths: scheme.earlyRedemptionMinMonths,

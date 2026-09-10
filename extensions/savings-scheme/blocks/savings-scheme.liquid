@@ -45,16 +45,8 @@
           </div>
         </div>
 
-        <!-- Tiered Gift Benefit Cards -->
-        <div class="jss-gift-tiers" data-jss-gift-tiers hidden>
-          <div class="jss-gift-tier-card" data-jss-gift-tier-card>
-            <div class="jss-gift-tier-header">
-              <span class="jss-gift-tier-icon">🎁</span>
-              <span class="jss-gift-tier-title" data-jss-gift-tier-title>Free Gift</span>
-            </div>
-            <span class="jss-gift-tier-status" data-jss-gift-tier-status>Included in your plan</span>
-          </div>
-        </div>
+        <!-- Tiered Gift Benefit Cards (0-2, populated dynamically via JS) -->
+        <div class="jss-gift-tiers" data-jss-gift-tiers hidden></div>
 
         <!-- OR Divider -->
         <div class="jss-divider">
@@ -71,38 +63,13 @@
           <button type="button" class="jss-cta-btn" data-jss-cta>CONTINUE</button>
 
           <label class="jss-terms-label">
-            <input type="checkbox" class="jss-terms-checkbox" data-jss-terms checked />
+            <input type="checkbox" class="jss-terms-checkbox" data-jss-terms />
             <span class="jss-terms-text" data-jss-terms-text>
               I agree to Terms &amp; Conditions.
             </span>
           </label>
         </div>
 
-        <!-- Inline Enquiry Form -->
-        <form class="jss-enquiry-form" data-jss-enquiry-form hidden>
-          <h3 class="jss-form-heading">Complete Your Enquiry</h3>
-          <p class="jss-form-subheading">Provide your details to register interest. No immediate payment is required.</p>
-          <label class="jss-field">
-            <span>Full Name *</span>
-            <input type="text" name="name" data-jss-input-name required placeholder="e.g. Priya Sharma" />
-          </label>
-          <div class="jss-field-row">
-            <label class="jss-field">
-              <span>Phone Number *</span>
-              <input type="tel" name="phone" data-jss-input-phone placeholder="e.g. 9876543210" />
-            </label>
-            <label class="jss-field">
-              <span>Email Address</span>
-              <input type="email" name="email" data-jss-input-email placeholder="e.g. priya@example.com" />
-            </label>
-          </div>
-          <p class="jss-form-error" data-jss-form-error hidden></p>
-          <button type="submit" class="jss-cta-btn" data-jss-submit>Submit Enquiry</button>
-        </form>
-
-        <p class="jss-success" data-jss-success hidden>
-          ✓ Enquiry submitted successfully! Our representative will contact you shortly.
-        </p>
       </div>
 
       <!-- RIGHT COLUMN: Estimated Premium Summary & Early Redemption -->
@@ -135,19 +102,8 @@
             <span class="jss-summary-item-val" data-jss-bonus></span>
           </div>
 
-          <!-- Hero Dark Gift Card -->
-          <div class="jss-hero-gift-card" data-jss-gift-card hidden>
-            <div class="jss-hero-gift-left">
-              <p class="jss-hero-gift-name" data-jss-gift-name>Free Diamond Pendant</p>
-              <p class="jss-hero-gift-tagline">(Exclusive Gift just for you)</p>
-            </div>
-            <div class="jss-hero-gift-center" data-jss-gift-img-wrap hidden>
-              <img class="jss-hero-gift-img" data-jss-gift-img alt="Free gift thumbnail" width="40" height="40" />
-            </div>
-            <div class="jss-hero-gift-right">
-              <span class="jss-hero-gift-value" data-jss-gift-value></span>
-            </div>
-          </div>
+          <!-- Hero Dark Gift Card(s) - only eligible gifts are shown, populated via JS -->
+          <div class="jss-hero-gift-list" data-jss-gift-card hidden></div>
 
           <!-- Total Benefit Value Row -->
           <div class="jss-summary-item jss-summary-item-highlight">
@@ -175,9 +131,81 @@
           </h3>
           <div class="jss-redemption-grid" data-jss-redemption-grid>
             <!-- 2x2 grid populated dynamically via JS -->
+
+            <!-- Redemption detail popover: anchored above/below the hovered
+                 or tapped card, stays within this grid's own bounds -->
+            <div class="jss-redemption-popover" data-jss-redemption-popover hidden role="tooltip">
+              <button type="button" class="jss-redemption-popover-close" data-jss-popover-close aria-label="Close">&times;</button>
+              <p class="jss-redemption-popover-title" data-jss-popover-title></p>
+              <div class="jss-redemption-popover-row">
+                <span>Your total payment</span>
+                <strong data-jss-popover-payment></strong>
+              </div>
+              <p class="jss-redemption-popover-note" data-jss-popover-payment-note></p>
+              <div class="jss-redemption-popover-row">
+                <span>Bonus Benefit</span>
+                <strong data-jss-popover-bonus></strong>
+              </div>
+              <p class="jss-redemption-popover-note" data-jss-popover-bonus-note></p>
+              <div class="jss-redemption-popover-highlight">
+                <span data-jss-popover-worth-label></span>
+                <strong data-jss-popover-worth></strong>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Enquiry modal: opened from the CONTINUE button -->
+  <div class="jss-modal-backdrop" data-jss-enquiry-backdrop hidden></div>
+  <div class="jss-modal" data-jss-enquiry-modal hidden role="dialog" aria-modal="true" aria-labelledby="jss-enquiry-heading-{{ block.id }}">
+    <button type="button" class="jss-modal-close" data-jss-enquiry-close aria-label="Close">&times;</button>
+
+    <form class="jss-enquiry-form" data-jss-enquiry-form>
+      <h3 class="jss-form-heading" id="jss-enquiry-heading-{{ block.id }}">Complete Your Enquiry</h3>
+      <p class="jss-form-subheading">Provide your details to register interest and lock today's rate. No immediate payment is required.</p>
+      <label class="jss-field">
+        <span>Full Name *</span>
+        <input type="text" name="name" data-jss-input-name required placeholder="e.g. Priya Sharma" />
+      </label> 
+      <label class="jss-field">
+        <span>Phone Number *</span>
+        <div class="jss-phone-field">
+          <span class="jss-phone-prefix">+91</span>
+          <input type="tel" name="phone" data-jss-input-phone placeholder="9876543210" />
+        </div>
+      </label>         
+      <label class="jss-field">
+          <span>Email Address</span>
+          <input type="email" name="email" data-jss-input-email placeholder="e.g. priya@example.com" />
+        </label>
+      <p class="jss-form-error" data-jss-form-error hidden></p>
+
+      <div class="jss-plan-summary">
+        <div>
+          <span class="jss-plan-summary-label">PLAN SELECTED</span>
+          <span class="jss-plan-summary-value" data-jss-modal-plan></span>
+        </div>
+        <div class="jss-plan-summary-benefit" data-jss-modal-benefit-wrap hidden>
+          <span class="jss-plan-summary-label">GOLD BENEFIT</span>
+          <span class="jss-plan-summary-value jss-plan-summary-benefit-value" data-jss-modal-benefit></span>
+        </div>
+      </div>
+
+      <button type="submit" class="jss-cta-btn" data-jss-submit>Submit Enquiry</button>
+
+      <div class="jss-trust-row">
+        <span><span class="jss-trust-icon">&#10003;</span> Verified Vault Partner</span>
+        <span class="jss-trust-dot">&bull;</span>
+        <span><span class="jss-trust-icon">&#128274;</span> 256-Bit SSL Encrypted</span>
+      </div>
+    </form>
+
+    <div class="jss-success" data-jss-success hidden>
+      <p>✓ Enquiry submitted successfully! Our representative will contact you shortly.</p>
+      <button type="button" class="jss-cta-btn" data-jss-success-close>Close</button>
     </div>
   </div>
 </div>

@@ -1,6 +1,11 @@
 import type { ActionFunctionArgs } from "react-router";
+import { Prisma } from "@prisma/client";
 import prisma from "../db.server";
-import { calculateSavingsScheme } from "../services/savingsSchemeCalculator.server";
+import {
+  calculateSavingsScheme,
+  getEligibleGifts,
+} from "../services/savingsSchemeCalculator.server";
+import { parseGifts } from "../services/savingsScheme.server";
 import {
   isValidEmail,
   isValidPhone,
@@ -135,10 +140,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     bonusMonths: scheme.bonusMonths,
   });
 
-  // Matches the storefront widget's own unlock check: no minimum means the
-  // gift applies to every eligible plan.
-  const giftEligible =
-    scheme.giftEnabled && (!scheme.giftMinAmount || monthlyAmount >= scheme.giftMinAmount);
+  // Never trust client-submitted gift/eligibility data: recalculate from the
+  // scheme's current configuration and the validated monthly amount.
+  const allGifts = parseGifts(scheme.gifts);
+  const eligibleGifts = getEligibleGifts(allGifts, monthlyAmount);
+  const primaryGift = eligibleGifts[0] ?? null;
 
   await prisma.savingsEnquiry.create({
     data: {
@@ -153,9 +159,21 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       bonusAmount,
       totalContribution,
       totalBenefit,
-      giftName: scheme.giftEnabled ? scheme.giftName : null,
-      giftValue: scheme.giftEnabled ? scheme.giftValue : null,
-      giftEligible,
+      // Legacy single-gift columns mirror the first eligible gift, preserved
+      // for backward compatibility with the existing enquiries UI/reports.
+      giftName: primaryGift?.name ?? null,
+      giftValue: primaryGift?.value ?? null,
+      giftEligible: eligibleGifts.length > 0,
+      giftsSnapshot:
+        eligibleGifts.length > 0
+          ? eligibleGifts.map((gift) => ({
+              name: gift.name,
+              value: gift.value,
+              imageUrl: gift.imageUrl,
+              minAmount: gift.minAmount,
+              maxAmount: gift.maxAmount,
+            }))
+          : Prisma.JsonNull,
       sourceUrl,
     },
   });

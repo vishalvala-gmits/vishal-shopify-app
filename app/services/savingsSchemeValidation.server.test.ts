@@ -15,9 +15,16 @@ const validScheme: SchemeValidationInput = {
   minAmount: 2000,
   maxAmount: 19000,
   presetAmounts: [3000, 5000, 10000, 19000],
-  giftEnabled: true,
-  giftName: "Free Diamond Pendant",
-  giftValue: 10000,
+  gifts: [
+    {
+      enabled: true,
+      name: "Free Diamond Pendant",
+      value: 10000,
+      imageUrl: null,
+      minAmount: null,
+      maxAmount: null,
+    },
+  ],
   currencySymbol: "₹",
   primaryColor: "#5C4642",
 };
@@ -81,12 +88,93 @@ describe("validateSavingsSchemeInput", () => {
   it("requires gift name and value when gift is enabled", () => {
     const errors = validateSavingsSchemeInput({
       ...validScheme,
-      giftEnabled: true,
-      giftName: "",
-      giftValue: 0,
+      gifts: [{ enabled: true, name: "", value: 0, imageUrl: null, minAmount: null, maxAmount: null }],
     });
-    expect(errors.giftName).toBeDefined();
-    expect(errors.giftValue).toBeDefined();
+    expect(errors["gifts.0.name"]).toBeDefined();
+    expect(errors["gifts.0.value"]).toBeDefined();
+  });
+
+  it("does not require name/value for a disabled gift", () => {
+    const errors = validateSavingsSchemeInput({
+      ...validScheme,
+      gifts: [{ enabled: false, name: "", value: 0, imageUrl: null, minAmount: null, maxAmount: null }],
+    });
+    expect(errors["gifts.0.name"]).toBeUndefined();
+    expect(errors["gifts.0.value"]).toBeUndefined();
+  });
+
+  it("supports two independently configured gifts", () => {
+    const errors = validateSavingsSchemeInput({
+      ...validScheme,
+      gifts: [
+        { enabled: true, name: "Diamond Ring", value: 50000, imageUrl: null, minAmount: 5000, maxAmount: null },
+        { enabled: true, name: "Gold Pendant", value: 20000, imageUrl: null, minAmount: 10000, maxAmount: null },
+      ],
+    });
+    expect(errors).toEqual({});
+  });
+
+  it("rejects a third gift", () => {
+    const errors = validateSavingsSchemeInput({
+      ...validScheme,
+      gifts: [
+        { enabled: true, name: "Gift 1", value: 1000, imageUrl: null, minAmount: null, maxAmount: null },
+        { enabled: true, name: "Gift 2", value: 1000, imageUrl: null, minAmount: null, maxAmount: null },
+        { enabled: true, name: "Gift 3", value: 1000, imageUrl: null, minAmount: null, maxAmount: null },
+      ],
+    });
+    expect(errors.gifts).toBeDefined();
+  });
+
+  it("rejects a gift minimum contribution outside the scheme range", () => {
+    const errors = validateSavingsSchemeInput({
+      ...validScheme,
+      gifts: [
+        { enabled: true, name: "Gift 1", value: 1000, imageUrl: null, minAmount: 500, maxAmount: null },
+      ],
+    });
+    expect(errors["gifts.0.minAmount"]).toBeDefined();
+  });
+
+  it("allows an empty (unset) maximum contribution", () => {
+    const errors = validateSavingsSchemeInput({
+      ...validScheme,
+      gifts: [
+        { enabled: true, name: "Gift 1", value: 1000, imageUrl: null, minAmount: 5000, maxAmount: null },
+      ],
+    });
+    expect(errors["gifts.0.maxAmount"]).toBeUndefined();
+  });
+
+  it("rejects a gift maximum contribution outside the scheme range", () => {
+    const errors = validateSavingsSchemeInput({
+      ...validScheme,
+      gifts: [
+        { enabled: true, name: "Gift 1", value: 1000, imageUrl: null, minAmount: null, maxAmount: 500000 },
+      ],
+    });
+    expect(errors["gifts.0.maxAmount"]).toBeDefined();
+  });
+
+  it("rejects a gift maximum contribution lower than its own minimum", () => {
+    const errors = validateSavingsSchemeInput({
+      ...validScheme,
+      gifts: [
+        { enabled: true, name: "Gift 1", value: 1000, imageUrl: null, minAmount: 10000, maxAmount: 5000 },
+      ],
+    });
+    expect(errors["gifts.0.maxAmount"]).toBeDefined();
+  });
+
+  it("accepts a valid minAmount/maxAmount range on a gift", () => {
+    const errors = validateSavingsSchemeInput({
+      ...validScheme,
+      gifts: [
+        { enabled: true, name: "Gift 1", value: 1000, imageUrl: null, minAmount: 3000, maxAmount: 10000 },
+      ],
+    });
+    expect(errors["gifts.0.minAmount"]).toBeUndefined();
+    expect(errors["gifts.0.maxAmount"]).toBeUndefined();
   });
 
   it("rejects an invalid hex color", () => {

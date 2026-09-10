@@ -1,3 +1,7 @@
+import type { Gift } from "./savingsSchemeCalculator.server";
+
+export const MAX_GIFTS = 2;
+
 export type SchemeValidationInput = {
   name: string;
   durationMonths: number;
@@ -6,11 +10,7 @@ export type SchemeValidationInput = {
   minAmount: number;
   maxAmount: number;
   presetAmounts: number[];
-  giftEnabled: boolean;
-  giftName?: string | null;
-  giftValue?: number | null;
-  giftImageUrl?: string | null;
-  giftMinAmount?: number | null;
+  gifts: Gift[];
   popularAmount?: number | null;
   earlyRedemptionEnabled?: boolean;
   earlyRedemptionMinMonths?: number;
@@ -79,14 +79,67 @@ export function validateSavingsSchemeInput(
     addError(errors, "bonusMonths", "Bonus months must be at least 1 when bonus is enabled.");
   }
 
-  if (input.giftEnabled) {
-    if (!input.giftName || input.giftName.trim().length === 0) {
-      addError(errors, "giftName", "Gift name is required when the gift is enabled.");
-    }
-    if (!Number.isFinite(input.giftValue) || (input.giftValue ?? 0) <= 0) {
-      addError(errors, "giftValue", "Gift value must be greater than 0 when the gift is enabled.");
-    }
+  const gifts = input.gifts ?? [];
+  if (gifts.length > MAX_GIFTS) {
+    addError(errors, "gifts", `A maximum of ${MAX_GIFTS} gifts is supported.`);
   }
+
+  gifts.slice(0, MAX_GIFTS).forEach((gift, index) => {
+    if (!gift.enabled) return;
+
+    if (!gift.name || gift.name.trim().length === 0) {
+      addError(
+        errors,
+        `gifts.${index}.name`,
+        `Gift ${index + 1} name is required when the gift is enabled.`,
+      );
+    }
+    if (!Number.isFinite(gift.value) || (gift.value ?? 0) <= 0) {
+      addError(
+        errors,
+        `gifts.${index}.value`,
+        `Gift ${index + 1} value must be greater than 0 when the gift is enabled.`,
+      );
+    }
+    if (gift.minAmount != null) {
+      if (!Number.isFinite(gift.minAmount) || gift.minAmount < 0) {
+        addError(
+          errors,
+          `gifts.${index}.minAmount`,
+          `Gift ${index + 1} minimum contribution must be 0 or greater.`,
+        );
+      } else if (gift.minAmount < input.minAmount || gift.minAmount > input.maxAmount) {
+        addError(
+          errors,
+          `gifts.${index}.minAmount`,
+          `Gift ${index + 1} minimum contribution must be between the scheme's minimum and maximum amount.`,
+        );
+      }
+    }
+
+    // Optional: leaving it empty means no upper bound.
+    if (gift.maxAmount != null) {
+      if (!Number.isFinite(gift.maxAmount) || gift.maxAmount < 0) {
+        addError(
+          errors,
+          `gifts.${index}.maxAmount`,
+          `Gift ${index + 1} maximum contribution must be 0 or greater.`,
+        );
+      } else if (gift.maxAmount < input.minAmount || gift.maxAmount > input.maxAmount) {
+        addError(
+          errors,
+          `gifts.${index}.maxAmount`,
+          `Gift ${index + 1} maximum contribution must be between the scheme's minimum and maximum amount.`,
+        );
+      } else if (gift.minAmount != null && gift.maxAmount < gift.minAmount) {
+        addError(
+          errors,
+          `gifts.${index}.maxAmount`,
+          `Gift ${index + 1} maximum contribution must be greater than or equal to its minimum contribution.`,
+        );
+      }
+    }
+  });
 
   if (input.popularAmount != null && Number.isFinite(input.popularAmount)) {
     if (input.popularAmount < input.minAmount || input.popularAmount > input.maxAmount) {

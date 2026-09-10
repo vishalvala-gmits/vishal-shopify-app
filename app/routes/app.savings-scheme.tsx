@@ -9,12 +9,26 @@ import { useAppBridge } from "@shopify/app-bridge-react";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { authenticate } from "../shopify.server";
 import {
+  TERMS_TEXT_PREFIX,
   getSchemeForShop,
+  parseGifts,
   replaceSchemeProducts,
+  resolveSchemeDefaults,
+  shopNameFromDomain,
+  stripTermsTextPrefix,
   upsertSchemeForShop,
 } from "../services/savingsScheme.server";
+import type { Gift } from "../services/savingsSchemeCalculator.server";
 import { validateSavingsSchemeInput } from "../services/savingsSchemeValidation.server";
 import type { SchemeValidationErrors } from "../services/savingsSchemeValidation.server";
+
+// Duplicated from savingsScheme.server's MAX_GIFTS / TERMS_TEXT_PREFIX rather
+// than imported for use in the client-rendered component below, so this
+// route module never pulls a `.server.ts` value import into the browser
+// bundle (React Router only strips server code reached exclusively through
+// loader/action).
+const MAX_GIFTS_DISPLAY = 2;
+const TERMS_TEXT_PREFIX_DISPLAY = "I agree to Terms & Conditions of ";
 
 export type ProductSummary = {
   id: string;
@@ -45,12 +59,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   let initialProducts: ProductSummary[] = [];
   let shopCurrencyCode = "INR";
   let defaultCurrencySymbol = "₹";
+  let shopDisplayName = shopNameFromDomain(session.shop);
 
   try {
     const response = await admin.graphql(
       `#graphql
         query GetShopAndAssignedProducts($ids: [ID!]!) {
           shop {
+            name
             currencyCode
           }
           nodes(ids: $ids) {
@@ -67,6 +83,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       { variables: { ids: productIds } },
     );
     const json = await response.json();
+    if (json.data?.shop?.name) {
+      shopDisplayName = json.data.shop.name;
+    }
     if (json.data?.shop?.currencyCode) {
       shopCurrencyCode = json.data.shop.currencyCode;
       defaultCurrencySymbol = getCurrencySymbol(shopCurrencyCode);
@@ -90,7 +109,31 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     console.error("Failed to load shop info or assigned products:", error);
   }
 
-  return { scheme, initialProducts, defaultCurrencySymbol, shopCurrencyCode };
+  // Defaults are for DISPLAY only when no scheme exists yet — nothing is
+  // written to the database until the merchant saves the form.
+  const defaults = resolveSchemeDefaults({
+    existing: scheme,
+    shopDisplayName,
+    submitted: {},
+  });
+
+  const gifts = parseGifts(scheme?.gifts);
+
+  // Only the part after the fixed "I agree to Terms & Conditions of " prefix
+  // is ever shown/editable in the admin field.
+  const termsTextSuffix = stripTermsTextPrefix(
+    scheme?.termsText ?? defaults.termsText ?? "",
+  );
+
+  return {
+    scheme,
+    gifts,
+    defaults,
+    termsTextSuffix,
+    initialProducts,
+    defaultCurrencySymbol,
+    shopCurrencyCode,
+  };
 };
 
 type ActionResult =
@@ -109,6 +152,27 @@ function parseAmounts(raw: string): number[] {
     .map((value) => Number(value));
 }
 
+function parseGiftFromForm(formData: FormData, index: number): Gift {
+  const prefix = `gift${index}`;
+  const enabled = formData.get(`${prefix}Enabled`) === "on";
+  const name = String(formData.get(`${prefix}Name`) ?? "");
+  const value = Number(formData.get(`${prefix}Value`) ?? 0);
+  const imageUrl = String(formData.get(`${prefix}ImageUrl`) ?? "");
+  const minAmountRaw = formData.get(`${prefix}MinAmount`);
+  const minAmount = minAmountRaw ? Number(minAmountRaw) : null;
+  const maxAmountRaw = formData.get(`${prefix}MaxAmount`);
+  const maxAmount = maxAmountRaw ? Number(maxAmountRaw) : null;
+
+  return {
+    enabled,
+    name: enabled ? name : null,
+    value: enabled ? value : null,
+    imageUrl: enabled && imageUrl.trim().length > 0 ? imageUrl.trim() : null,
+    minAmount: enabled ? minAmount : null,
+    maxAmount: enabled ? maxAmount : null,
+  };
+}
+
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { session, admin } = await authenticate.admin(request);
   const formData = await request.formData();
@@ -118,22 +182,59 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     string
   >;
 
+  const existing = await getSchemeForShop(session.shop);
+
   const name = String(formData.get("name") ?? "");
   const durationMonths = Number(formData.get("durationMonths"));
   const bonusEnabled = formData.get("bonusEnabled") === "on";
   const bonusMonths = Number(formData.get("bonusMonths") ?? 0);
-  const minAmount = Number(formData.get("minAmount"));
-  const maxAmount = Number(formData.get("maxAmount"));
-  const presetAmounts = parseAmounts(
-    String(formData.get("presetAmounts") ?? ""),
-  );
-  const giftEnabled = formData.get("giftEnabled") === "on";
-  const giftName = String(formData.get("giftName") ?? "");
-  const giftValue = Number(formData.get("giftValue") ?? 0);
-  const giftImageUrl = String(formData.get("giftImageUrl") ?? "");
-  const giftMinAmount = formData.get("giftMinAmount")
-    ? Number(formData.get("giftMinAmount"))
-    : null;
+
+  const minAmountRaw = formData.get("minAmount");
+  const maxAmountRaw = formData.get("maxAmount");
+  const presetAmountsRaw = String(formData.get("presetAmounts") ?? "").trim();
+
+  const termsTextSuffixRaw = String(formData.get("termsTextSuffix") ?? "").trim();
+
+  let shopDisplayName = shopNameFromDomain(session.shop);
+  try {
+    const response = await admin.graphql(`#graphql
+      query GetShopNameForDefaults {
+        shop { name }
+      }
+    `);
+    const json = await response.json();
+    if (json.data?.shop?.name) {
+      shopDisplayName = json.data.shop.name;
+    }
+  } catch (error) {
+    console.error("Failed to load shop name for terms default:", error);
+  }
+
+  const defaults = resolveSchemeDefaults({
+    existing,
+    shopDisplayName,
+    submitted: {
+      minAmount: minAmountRaw ? Number(minAmountRaw) : undefined,
+      maxAmount: maxAmountRaw ? Number(maxAmountRaw) : undefined,
+      presetAmounts:
+        presetAmountsRaw.length > 0 ? parseAmounts(presetAmountsRaw) : undefined,
+      termsText:
+        termsTextSuffixRaw.length > 0
+          ? `${TERMS_TEXT_PREFIX}${termsTextSuffixRaw}`
+          : null,
+    },
+  });
+
+  const minAmount = defaults.minAmount;
+  const maxAmount = defaults.maxAmount;
+  const presetAmounts = defaults.presetAmounts;
+  const termsText = defaults.termsText;
+
+  const gifts: Gift[] = [
+    parseGiftFromForm(formData, 1),
+    parseGiftFromForm(formData, 2),
+  ];
+
   const popularAmount = formData.get("popularAmount")
     ? Number(formData.get("popularAmount"))
     : null;
@@ -142,7 +243,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const earlyRedemptionMinMonths = Number(
     formData.get("earlyRedemptionMinMonths") ?? 6,
   );
-  const termsText = String(formData.get("termsText") ?? "");
 
   const currencySymbol = String(formData.get("currencySymbol") ?? "");
   const primaryColor = String(formData.get("primaryColor") ?? "");
@@ -163,11 +263,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     minAmount,
     maxAmount,
     presetAmounts,
-    giftEnabled,
-    giftName,
-    giftValue,
-    giftImageUrl,
-    giftMinAmount,
+    gifts,
     popularAmount,
     earlyRedemptionEnabled,
     earlyRedemptionMinMonths,
@@ -220,18 +316,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       minAmount,
       maxAmount,
       presetAmounts,
-      giftEnabled,
-      giftName: giftEnabled ? giftName : null,
-      giftValue: giftEnabled ? giftValue : null,
-      giftImageUrl:
-        giftEnabled && giftImageUrl.trim().length > 0
-          ? giftImageUrl.trim()
-          : null,
-      giftMinAmount: giftEnabled && giftMinAmount ? giftMinAmount : null,
+      gifts,
       popularAmount,
       earlyRedemptionEnabled,
       earlyRedemptionMinMonths,
-      termsText: termsText.trim().length > 0 ? termsText.trim() : null,
+      termsText,
       currencySymbol,
       primaryColor,
       status: "active",
@@ -260,9 +349,201 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 };
 
+type GiftFieldsProps = {
+  index: 1 | 2;
+  gift: Gift | undefined;
+  errors: SchemeValidationErrors;
+};
+
+function GiftFields({ index, gift, errors }: GiftFieldsProps) {
+  const prefix = `gift${index}`;
+  const [enabled, setEnabled] = useState(gift?.enabled ?? false);
+  const [imageUrl, setImageUrl] = useState(gift?.imageUrl ?? "");
+  const [imageUploading, setImageUploading] = useState(false);
+  const [imageError, setImageError] = useState<string | undefined>(undefined);
+
+  type DropZoneEl = HTMLElement & {
+    value?: string;
+    disabled?: boolean;
+    files?: File[];
+  };
+  const dropZoneRef = useRef<DropZoneEl | null>(null);
+
+  const switchRef = useCallback((node: Element | null) => {
+    if (!node) return;
+    const handler = (event: Event) => {
+      const target = event.currentTarget as unknown as { checked?: boolean };
+      setEnabled(Boolean(target.checked));
+    };
+    node.addEventListener("change", handler);
+    return () => node.removeEventListener("change", handler);
+  }, []);
+
+  const handleImageChange = useCallback(async (event: Event) => {
+    const target = event.currentTarget as unknown as DropZoneEl;
+    const file = target.files?.[0];
+    if (!file) return;
+
+    setImageError(undefined);
+    setImageUploading(true);
+    if (dropZoneRef.current) dropZoneRef.current.disabled = true;
+
+    try {
+      const body = new FormData();
+      body.append("file", file);
+      const response = await fetch("/app/api/upload-gift-image", {
+        method: "POST",
+        body,
+      });
+      const result = await response.json();
+      if (!result.success) {
+        throw new Error(result.message || "Upload failed. Please try again.");
+      }
+      setImageUrl(result.url);
+    } catch (error) {
+      setImageError(
+        error instanceof Error
+          ? error.message
+          : "Upload failed. Please try again.",
+      );
+    } finally {
+      setImageUploading(false);
+      if (dropZoneRef.current) {
+        dropZoneRef.current.disabled = false;
+        dropZoneRef.current.value = "";
+      }
+    }
+  }, []);
+
+  const bindDropZone = useCallback(
+    (node: Element | null) => {
+      dropZoneRef.current = node as DropZoneEl | null;
+      if (!node) return;
+      node.addEventListener("change", handleImageChange);
+      return () => node.removeEventListener("change", handleImageChange);
+    },
+    [handleImageChange],
+  );
+
+  const removeImage = () => {
+    setImageUrl("");
+    setImageError(undefined);
+  };
+
+  const nameError = errors[`gifts.${index - 1}.name`]?.[0];
+  const valueError = errors[`gifts.${index - 1}.value`]?.[0];
+  const minAmountError = errors[`gifts.${index - 1}.minAmount`]?.[0];
+  const maxAmountError = errors[`gifts.${index - 1}.maxAmount`]?.[0];
+
+  return (
+    <s-stack direction="block" gap="base">
+      <s-switch
+        ref={switchRef}
+        name={`${prefix}Enabled`}
+        label={`Gift ${index}`}
+        defaultChecked={gift?.enabled ?? false}
+        details={
+          index === 1
+            ? "Offer a free gift to customers who reach the minimum contribution below"
+            : "Offer a second free gift with its own unlock threshold"
+        }
+      />
+
+      {enabled && (
+        <>
+          <s-grid gridTemplateColumns="1fr 1fr" gap="base">
+            <s-text-field
+              name={`${prefix}Name`}
+              label="Gift name"
+              defaultValue={gift?.name ?? ""}
+              error={nameError}
+              required
+            />
+            <s-number-field
+              name={`${prefix}Value`}
+              label="Gift value"
+              defaultValue={String(gift?.value ?? "")}
+              error={valueError}
+              min={1}
+              required
+            />
+          </s-grid>
+
+          <input type="hidden" name={`${prefix}ImageUrl`} value={imageUrl} />
+
+          <s-stack direction="block" gap="small-200">
+            <s-text type="strong">Gift image</s-text>
+            {imageUrl ? (
+              <s-box
+                padding="base"
+                borderWidth="small"
+                borderColor="subdued"
+                borderRadius="base"
+              >
+                <s-stack direction="inline" gap="base" alignItems="center">
+                  <s-thumbnail src={imageUrl} alt="Gift image" size="base" />
+                  <s-button
+                    type="button"
+                    variant="tertiary"
+                    tone="critical"
+                    onClick={removeImage}
+                  >
+                    Remove image
+                  </s-button>
+                </s-stack>
+              </s-box>
+            ) : (
+              <>
+                <s-drop-zone
+                  ref={bindDropZone}
+                  label="Gift image"
+                  labelAccessibilityVisibility="exclusive"
+                  accessibilityLabel={`Upload gift ${index} image`}
+                  accept="image/jpeg,image/png,image/gif,image/webp"
+                  disabled={imageUploading}
+                  error={imageError}
+                />
+                <s-paragraph color="subdued">
+                  {imageUploading
+                    ? "Uploading…"
+                    : "Shown in the gift card on the storefront. JPEG, PNG, GIF, or WEBP, up to 5MB."}
+                </s-paragraph>
+              </>
+            )}
+          </s-stack>
+
+          <s-grid gridTemplateColumns="1fr 1fr" gap="base">
+            <s-number-field
+              name={`${prefix}MinAmount`}
+              label="Minimum contribution to unlock gift"
+              defaultValue={String(gift?.minAmount ?? "")}
+              error={minAmountError}
+              details="Leave empty to give this gift for all eligible plans"
+            />
+            <s-number-field
+              name={`${prefix}MaxAmount`}
+              label="Maximum contribution to unlock gift"
+              defaultValue={String(gift?.maxAmount ?? "")}
+              error={maxAmountError}
+              details="Optional — leave empty for no upper limit"
+            />
+          </s-grid>
+        </>
+      )}
+    </s-stack>
+  );
+}
+
 export default function SavingsSchemeSettings() {
-  const { scheme, initialProducts, defaultCurrencySymbol, shopCurrencyCode } =
-    useLoaderData<typeof loader>();
+  const {
+    scheme,
+    gifts,
+    defaults,
+    termsTextSuffix,
+    initialProducts,
+    defaultCurrencySymbol,
+    shopCurrencyCode,
+  } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<ActionResult>();
   const shopify = useAppBridge();
   const formRef = useRef<HTMLFormElement>(null);
@@ -277,22 +558,9 @@ export default function SavingsSchemeSettings() {
   const [bonusEnabled, setBonusEnabled] = useState(
     scheme?.bonusEnabled ?? false,
   );
-  const [giftEnabled, setGiftEnabled] = useState(scheme?.giftEnabled ?? false);
   const [earlyRedemptionEnabled, setEarlyRedemptionEnabled] = useState(
     scheme?.earlyRedemptionEnabled ?? true,
   );
-
-  const [giftImageUrl, setGiftImageUrl] = useState(scheme?.giftImageUrl ?? "");
-  const [giftImageUploading, setGiftImageUploading] = useState(false);
-  const [giftImageError, setGiftImageError] = useState<string | undefined>(
-    undefined,
-  );
-  type DropZoneEl = HTMLElement & {
-    value?: string;
-    disabled?: boolean;
-    files?: File[];
-  };
-  const dropZoneRef = useRef<DropZoneEl | null>(null);
 
   const attachSwitchListener = (
     node: Element | null,
@@ -311,66 +579,11 @@ export default function SavingsSchemeSettings() {
     (node: Element | null) => attachSwitchListener(node, setBonusEnabled),
     [],
   );
-  const giftSwitchRef = useCallback(
-    (node: Element | null) => attachSwitchListener(node, setGiftEnabled),
-    [],
-  );
   const earlyRedemptionSwitchRef = useCallback(
     (node: Element | null) =>
       attachSwitchListener(node, setEarlyRedemptionEnabled),
     [],
   );
-
-  const handleGiftImageChange = useCallback(async (event: Event) => {
-    const target = event.currentTarget as unknown as DropZoneEl;
-    const file = target.files?.[0];
-    if (!file) return;
-
-    setGiftImageError(undefined);
-    setGiftImageUploading(true);
-    if (dropZoneRef.current) dropZoneRef.current.disabled = true;
-
-    try {
-      const body = new FormData();
-      body.append("file", file);
-      const response = await fetch("/app/api/upload-gift-image", {
-        method: "POST",
-        body,
-      });
-      const result = await response.json();
-      if (!result.success) {
-        throw new Error(result.message || "Upload failed. Please try again.");
-      }
-      setGiftImageUrl(result.url);
-    } catch (error) {
-      setGiftImageError(
-        error instanceof Error
-          ? error.message
-          : "Upload failed. Please try again.",
-      );
-    } finally {
-      setGiftImageUploading(false);
-      if (dropZoneRef.current) {
-        dropZoneRef.current.disabled = false;
-        dropZoneRef.current.value = "";
-      }
-    }
-  }, []);
-
-  const bindDropZone = useCallback(
-    (node: Element | null) => {
-      dropZoneRef.current = node as DropZoneEl | null;
-      if (!node) return;
-      node.addEventListener("change", handleGiftImageChange);
-      return () => node.removeEventListener("change", handleGiftImageChange);
-    },
-    [handleGiftImageChange],
-  );
-
-  const removeGiftImage = () => {
-    setGiftImageUrl("");
-    setGiftImageError(undefined);
-  };
 
   const isSaving = fetcher.state !== "idle";
   const result = fetcher.data;
@@ -382,9 +595,11 @@ export default function SavingsSchemeSettings() {
     }
   }, [result, shopify]);
 
-  const presetAmountsDefault = Array.isArray(scheme?.presetAmounts)
-    ? (scheme?.presetAmounts as number[]).join(", ")
-    : "";
+  const presetAmountsDefault = (
+    Array.isArray(scheme?.presetAmounts) && scheme.presetAmounts.length > 0
+      ? (scheme.presetAmounts as number[])
+      : defaults.presetAmounts
+  ).join(", ");
 
   const pickProducts = async () => {
     const selection = await shopify.resourcePicker?.({
@@ -422,7 +637,7 @@ export default function SavingsSchemeSettings() {
   };
 
   return (
-    <s-page heading="Savings Scheme">
+    <s-page heading="Savings Scheme" inlineSize="large">
       <fetcher.Form method="post" id="savings-scheme-form" ref={formRef}>
         <input type="hidden" name="schemeId" value={scheme?.id ?? ""} />
         <input
@@ -431,351 +646,277 @@ export default function SavingsSchemeSettings() {
           value={selectedProducts.map((product) => product.id).join(",")}
         />
 
-        <s-stack direction="block" gap="base">
+        <s-stack direction="block" gap="large">
           {errors.form && (
-            <s-section>
+            <s-banner tone="critical" heading="Couldn't save scheme">
               <s-paragraph>{errors.form[0]}</s-paragraph>
-            </s-section>
+            </s-banner>
           )}
 
           <s-section heading="Scheme details">
-            <s-grid gridTemplateColumns="1fr 1fr" gap="base">
-              <s-text-field
-                name="name"
-                label="Scheme name"
-                defaultValue={scheme?.name ?? ""}
-                error={errors.name?.[0]}
-                required
-              />
-              <s-number-field
-                name="durationMonths"
-                label="Contribution months"
-                defaultValue={String(scheme?.durationMonths ?? 9)}
-                error={errors.durationMonths?.[0]}
-                required
-              />
-            </s-grid>
+            <s-stack direction="block" gap="base">
+              <s-paragraph color="subdued">
+                Name the plan and set how many months customers contribute
+                for.
+              </s-paragraph>
+              <s-grid gridTemplateColumns="1fr 1fr" gap="base">
+                <s-text-field
+                  name="name"
+                  label="Scheme name"
+                  defaultValue={scheme?.name ?? ""}
+                  error={errors.name?.[0]}
+                  required
+                />
+                <s-number-field
+                  name="durationMonths"
+                  label="Contribution months"
+                  defaultValue={String(scheme?.durationMonths ?? 9)}
+                  error={errors.durationMonths?.[0]}
+                  min={1}
+                  required
+                />
+              </s-grid>
+            </s-stack>
           </s-section>
 
           <s-section heading="Bonus">
-            <s-switch
-              ref={bonusSwitchRef}
-              name="bonusEnabled"
-              label="Bonus month"
-              defaultChecked={scheme?.bonusEnabled ?? false}
-              details="Covers one extra month's contribution as a bonus at the end of the plan"
-            />
-            {bonusEnabled && (
-              <s-number-field
-                name="bonusMonths"
-                label="Bonus months"
-                defaultValue={String(scheme?.bonusMonths ?? 1)}
-                error={errors.bonusMonths?.[0]}
-                min={1}
-                required
+            <s-stack direction="block" gap="base">
+              <s-switch
+                ref={bonusSwitchRef}
+                name="bonusEnabled"
+                label="Bonus month"
+                defaultChecked={scheme?.bonusEnabled ?? false}
+                details="Covers one extra month's contribution as a bonus at the end of the plan"
               />
-            )}
-          </s-section>
-
-          <s-section heading="Contribution range">
-            <s-grid gridTemplateColumns="1fr 1fr" gap="base">
-              <s-number-field
-                name="minAmount"
-                label="Minimum monthly contribution"
-                defaultValue={String(scheme?.minAmount ?? 2000)}
-                error={errors.minAmount?.[0]}
-                required
-              />
-              <s-number-field
-                name="maxAmount"
-                label="Maximum monthly contribution"
-                defaultValue={String(scheme?.maxAmount ?? 19000)}
-                error={errors.maxAmount?.[0]}
-                required
-              />
-              <s-text-field
-                name="presetAmounts"
-                label="Quick select amounts (comma separated)"
-                defaultValue={presetAmountsDefault}
-                error={errors.presetAmounts?.[0]}
-                details="Example: 3000, 5000, 10000, 19000"
-              />
-              <s-number-field
-                name="popularAmount"
-                label="Featured / Popular preset amount"
-                defaultValue={String(scheme?.popularAmount ?? 10000)}
-                error={errors.popularAmount?.[0]}
-                details="Displays the 'POPULAR' badge on this preset amount button"
-              />
-            </s-grid>
-          </s-section>
-
-          <s-section heading="Free gift">
-            <s-switch
-              ref={giftSwitchRef}
-              name="giftEnabled"
-              label="Free gift"
-              defaultChecked={scheme?.giftEnabled ?? false}
-              details="Offer a free gift to customers who reach the minimum contribution below"
-            />
-
-            {giftEnabled && (
-              <>
-                <s-grid gridTemplateColumns="1fr 1fr" gap="base">
-                  <s-text-field
-                    name="giftName"
-                    label="Gift name"
-                    defaultValue={scheme?.giftName ?? "Free Diamond Pendant"}
-                    error={errors.giftName?.[0]}
-                    required
-                  />
+              {bonusEnabled && (
+                <s-box maxInlineSize="50%">
                   <s-number-field
-                    name="giftValue"
-                    label="Gift value"
-                    defaultValue={String(scheme?.giftValue ?? 10000)}
-                    error={errors.giftValue?.[0]}
+                    name="bonusMonths"
+                    label="Bonus months"
+                    defaultValue={String(scheme?.bonusMonths ?? 1)}
+                    error={errors.bonusMonths?.[0]}
                     min={1}
                     required
                   />
-                </s-grid>
+                </s-box>
+              )}
+            </s-stack>
+          </s-section>
 
-                <input type="hidden" name="giftImageUrl" value={giftImageUrl} />
-
-                {giftImageUrl ? (
-                  <s-stack direction="inline" gap="base" alignItems="center">
-                    <s-thumbnail
-                      src={giftImageUrl}
-                      alt="Gift image"
-                      size="base"
-                    />
-                    <s-button
-                      type="button"
-                      variant="tertiary"
-                      tone="critical"
-                      onClick={removeGiftImage}
-                    >
-                      Remove image
-                    </s-button>
-                  </s-stack>
-                ) : (
-                  <>
-                    <s-drop-zone
-                      ref={bindDropZone}
-                      label="Gift image"
-                      accessibilityLabel="Upload a gift image"
-                      accept="image/jpeg,image/png,image/gif,image/webp"
-                      disabled={giftImageUploading}
-                      error={giftImageError || errors.giftImageUrl?.[0]}
-                    />
-                    <s-paragraph color="subdued">
-                      {giftImageUploading
-                        ? "Uploading…"
-                        : "Shown in the gift card on the storefront. JPEG, PNG, GIF, or WEBP, up to 5MB."}
-                    </s-paragraph>
-                  </>
-                )}
-
+          <s-section heading="Contribution range">
+            <s-stack direction="block" gap="base">
+              <s-paragraph color="subdued">
+                Set the allowed monthly contribution range and the quick-select
+                amounts shown on the storefront calculator.
+              </s-paragraph>
+              <s-grid gridTemplateColumns="1fr 1fr" gap="base">
                 <s-number-field
-                  name="giftMinAmount"
-                  label="Minimum contribution to unlock gift"
-                  defaultValue={String(scheme?.giftMinAmount ?? "")}
-                  error={errors.giftMinAmount?.[0]}
-                  details="Leave empty to give this gift for all eligible plans"
+                  name="minAmount"
+                  label="Minimum monthly contribution"
+                  defaultValue={String(scheme?.minAmount ?? defaults.minAmount)}
+                  error={errors.minAmount?.[0]}
+                  min={1}
+                  required
                 />
-              </>
-            )}
+                <s-number-field
+                  name="maxAmount"
+                  label="Maximum monthly contribution"
+                  defaultValue={String(scheme?.maxAmount ?? defaults.maxAmount)}
+                  error={errors.maxAmount?.[0]}
+                  min={1}
+                  required
+                />
+              </s-grid>
+              <s-grid gridTemplateColumns="1fr 1fr" gap="base">
+                <s-text-field
+                  name="presetAmounts"
+                  label="Quick select amounts"
+                  defaultValue={presetAmountsDefault}
+                  error={errors.presetAmounts?.[0]}
+                  details="Comma separated, e.g. 10000, 30000, 50000, 80000"
+                />
+                <s-number-field
+                  name="popularAmount"
+                  label="Featured / Popular preset amount"
+                  defaultValue={String(scheme?.popularAmount ?? "")}
+                  error={errors.popularAmount?.[0]}
+                  details="Displays the 'POPULAR' badge on this preset amount button"
+                />
+              </s-grid>
+            </s-stack>
+          </s-section>
+
+          <s-section heading="Free gift">
+            <s-stack direction="block" gap="large">
+              <s-paragraph color="subdued">
+                Configure up to {MAX_GIFTS_DISPLAY} gifts, each with its own unlock
+                threshold.
+              </s-paragraph>
+              <GiftFields index={1} gift={gifts[0]} errors={errors} />
+              <s-divider />
+              <GiftFields index={2} gift={gifts[1]} errors={errors} />
+            </s-stack>
           </s-section>
 
           <s-section heading="Early redemption flexibility">
-            <s-paragraph>
-              Show customers early redemption estimated values (e.g. 7th, 8th,
-              9th, 10th Month) if they redeem early.
-            </s-paragraph>
-            <s-switch
-              ref={earlyRedemptionSwitchRef}
-              name="earlyRedemptionEnabled"
-              label="Enable early redemption schedule"
-              defaultChecked={scheme?.earlyRedemptionEnabled ?? true}
-            />
-            {earlyRedemptionEnabled && (
-              <s-number-field
-                name="earlyRedemptionMinMonths"
-                label="Eligible after (months)"
-                defaultValue={String(scheme?.earlyRedemptionMinMonths ?? 6)}
-                error={errors.earlyRedemptionMinMonths?.[0]}
-                min={1}
-                details="e.g. 6 means early redemption options are calculated starting from Month 7"
-                required
+            <s-stack direction="block" gap="base">
+              <s-paragraph color="subdued">
+                Show customers early redemption estimated values (e.g. 7th,
+                8th, 9th, 10th month) if they redeem early.
+              </s-paragraph>
+              <s-switch
+                ref={earlyRedemptionSwitchRef}
+                name="earlyRedemptionEnabled"
+                label="Enable early redemption schedule"
+                defaultChecked={scheme?.earlyRedemptionEnabled ?? true}
               />
-            )}
+              {earlyRedemptionEnabled && (
+                <s-box maxInlineSize="50%">
+                  <s-number-field
+                    name="earlyRedemptionMinMonths"
+                    label="Eligible after (months)"
+                    defaultValue={String(
+                      scheme?.earlyRedemptionMinMonths ?? 6,
+                    )}
+                    error={errors.earlyRedemptionMinMonths?.[0]}
+                    min={1}
+                    details="e.g. 6 means early redemption options are calculated starting from Month 7"
+                    required
+                  />
+                </s-box>
+              )}
+            </s-stack>
           </s-section>
 
-          <s-section heading="Style & Terms">
-            <s-grid gridTemplateColumns="1fr 1fr" gap="base">
-              <s-text-field
-                name="currencySymbol"
-                label="Currency symbol"
-                defaultValue={scheme?.currencySymbol || defaultCurrencySymbol}
-                details={`Store currency: ${shopCurrencyCode} (${defaultCurrencySymbol})`}
-                error={errors.currencySymbol?.[0]}
-                required
-              />
-              <s-color-field
-                name="primaryColor"
-                label="Primary color"
-                defaultValue={scheme?.primaryColor ?? "#5C4642"}
-                error={errors.primaryColor?.[0]}
-                details="Used for the slider, buttons, and highlights on the storefront calculator"
-                required
-              />
-            </s-grid>
-            <s-text-field
-              name="termsText"
-              label="Terms & Conditions agreement text"
-              defaultValue={
-                scheme?.termsText ??
-                "I agree to Terms & Conditions of Lucira Jewelry."
-              }
-              error={errors.termsText?.[0]}
-              details="Shown beside the mandatory agreement checkbox on the storefront"
-            />
+          <s-section heading="Style & terms">
+            <s-stack direction="block" gap="base">
+              <s-grid gridTemplateColumns="1fr 1fr" gap="base">
+                <s-text-field
+                  name="currencySymbol"
+                  label="Currency symbol"
+                  defaultValue={scheme?.currencySymbol || defaultCurrencySymbol}
+                  details={`Store currency: ${shopCurrencyCode} (${defaultCurrencySymbol})`}
+                  error={errors.currencySymbol?.[0]}
+                  required
+                />
+                <s-color-field
+                  name="primaryColor"
+                  label="Primary color"
+                  defaultValue={scheme?.primaryColor ?? "#5C4642"}
+                  error={errors.primaryColor?.[0]}
+                  details="Used for the slider, buttons, and highlights on the storefront calculator"
+                  required
+                />
+              </s-grid>
+              <s-stack direction="block" gap="small-200">
+                <s-text type="strong">Terms & conditions agreement text</s-text>
+                <s-box
+                  padding="small-300"
+                  borderWidth="small"
+                  borderColor="subdued"
+                  borderRadius="base"
+                >
+                  <s-stack direction="inline" gap="small-200" alignItems="center">
+                    <s-text color="subdued">{TERMS_TEXT_PREFIX_DISPLAY}</s-text>
+                    <s-box minInlineSize="40%">
+                      <s-text-field
+                        name="termsTextSuffix"
+                        label="Shop name shown in the terms text"
+                        labelAccessibilityVisibility="exclusive"
+                        defaultValue={termsTextSuffix}
+                        error={errors.termsText?.[0]}
+                        required
+                      />
+                    </s-box>
+                  </s-stack>
+                </s-box>
+                <s-paragraph color="subdued">
+                  The &quot;{TERMS_TEXT_PREFIX_DISPLAY.trim()}&quot; text is
+                  fixed; only the name shown at the end can be edited. Shown
+                  beside the mandatory agreement checkbox on the storefront.
+                </s-paragraph>
+              </s-stack>
+            </s-stack>
           </s-section>
 
           <s-section heading="Assigned products">
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "12px",
-              }}
-            >
-              <s-paragraph>
-                Select the products where this savings scheme calculator should
-                appear on the storefront.
-              </s-paragraph>
-              <s-button type="button" onClick={pickProducts}>
-                {selectedProducts.length > 0
-                  ? "Edit selection"
-                  : "Select products"}
-              </s-button>
-            </div>
-
-            {errors.productIds && (
-              <div
-                style={{
-                  marginBottom: "12px",
-                  color: "#d72c0d",
-                  fontSize: "14px",
-                }}
-              >
-                {errors.productIds[0]}
-              </div>
-            )}
-
-            {selectedProducts.length === 0 ? (
-              <s-paragraph color="subdued">
-                No products assigned yet. The savings scheme widget will not
-                appear on the storefront until at least one product is assigned.
-              </s-paragraph>
-            ) : (
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "10px",
-                }}
-              >
-                <s-paragraph>
-                  <strong>{selectedProducts.length}</strong> product
-                  {selectedProducts.length === 1 ? "" : "s"} selected
+            <s-stack direction="block" gap="base">
+              <s-grid gridTemplateColumns="1fr auto" gap="base" alignItems="center">
+                <s-paragraph color="subdued">
+                  Select the products where this savings scheme calculator
+                  should appear on the storefront.
                 </s-paragraph>
-                <div
-                  style={{
-                    border: "1px solid #e1e3e5",
-                    borderRadius: "8px",
-                    overflow: "hidden",
-                    backgroundColor: "#ffffff",
-                  }}
-                >
-                  {selectedProducts.map((product, index) => (
-                    <div
-                      key={product.id}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        padding: "10px 14px",
-                        borderTop: index > 0 ? "1px solid #f1f2f3" : "none",
-                        gap: "12px",
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "12px",
-                          minWidth: 0,
-                        }}
-                      >
-                        {product.imageUrl ? (
-                          <img
-                            src={product.imageUrl}
-                            alt={product.title}
-                            style={{
-                              width: "40px",
-                              height: "40px",
-                              objectFit: "cover",
-                              borderRadius: "6px",
-                              border: "1px solid #e1e3e5",
-                              flexShrink: 0,
-                            }}
-                          />
-                        ) : (
-                          <div
-                            style={{
-                              width: "40px",
-                              height: "40px",
-                              borderRadius: "6px",
-                              backgroundColor: "#f4f6f8",
-                              border: "1px solid #e1e3e5",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              fontSize: "18px",
-                              flexShrink: 0,
-                            }}
-                          >
-                            📦
-                          </div>
-                        )}
-                        <span
-                          style={{
-                            fontSize: "14px",
-                            fontWeight: 500,
-                            color: "#202223",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {product.title}
-                        </span>
-                      </div>
+                <s-button type="button" onClick={pickProducts}>
+                  {selectedProducts.length > 0
+                    ? "Edit selection"
+                    : "Select products"}
+                </s-button>
+              </s-grid>
 
-                      <s-button
-                        type="button"
-                        variant="tertiary"
-                        tone="critical"
-                        onClick={() => removeProduct(product.id)}
-                      >
-                        Remove
-                      </s-button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+              {errors.productIds && (
+                <s-banner tone="critical">
+                  <s-paragraph>{errors.productIds[0]}</s-paragraph>
+                </s-banner>
+              )}
+
+              {selectedProducts.length === 0 ? (
+                <s-box
+                  padding="large"
+                  borderWidth="small"
+                  borderColor="subdued"
+                  borderRadius="base"
+                  background="subdued"
+                >
+                  <s-paragraph color="subdued">
+                    No products assigned yet. The savings scheme widget will
+                    not appear on the storefront until at least one product is
+                    assigned.
+                  </s-paragraph>
+                </s-box>
+              ) : (
+                <s-stack direction="block" gap="small-200">
+                  <s-text color="subdued">
+                    <s-text type="strong">{selectedProducts.length}</s-text>{" "}
+                    product{selectedProducts.length === 1 ? "" : "s"} selected
+                  </s-text>
+                  <s-box
+                    borderWidth="small"
+                    borderColor="subdued"
+                    borderRadius="base"
+                  >
+                    <s-stack direction="block" gap="none">
+                      {selectedProducts.map((product, index) => (
+                        <s-stack direction="block" gap="none" key={product.id}>
+                          {index > 0 && <s-divider />}
+                          <s-box padding="small-400">
+                            <s-grid
+                              gridTemplateColumns="auto 1fr auto"
+                              gap="base"
+                              alignItems="center"
+                            >
+                              <s-thumbnail
+                                src={product.imageUrl}
+                                alt={product.title}
+                                size="small-200"
+                              />
+                              <s-text type="strong">{product.title}</s-text>
+                              <s-button
+                                type="button"
+                                variant="tertiary"
+                                tone="critical"
+                                onClick={() => removeProduct(product.id)}
+                              >
+                                Remove
+                              </s-button>
+                            </s-grid>
+                          </s-box>
+                        </s-stack>
+                      ))}
+                    </s-stack>
+                  </s-box>
+                </s-stack>
+              )}
+            </s-stack>
           </s-section>
         </s-stack>
       </fetcher.Form>

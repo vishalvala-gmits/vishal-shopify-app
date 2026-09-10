@@ -45,16 +45,20 @@ model SavingsScheme {
   maxAmount       Int
   presetAmounts   Json
 
-  giftEnabled              Boolean  @default(false)
-  giftName                 String?
-  giftValue                Int?
-  giftImageUrl             String?
-  giftMinAmount            Int?
+  // Array of up to 2 gift configs: { enabled, name, value, imageUrl, minAmount }.
+  // Migrated from the legacy single-gift scalar columns (giftEnabled/giftName/
+  // giftValue/giftImageUrl/giftMinAmount) — see migration
+  // 20260909000000_add_gifts_array_to_scheme.
+  gifts                    Json     @default("[]")
 
   popularAmount            Int?
   earlyRedemptionEnabled   Boolean  @default(true)
   earlyRedemptionMinMonths Int      @default(6)
-  termsText                String?  @default("I agree to Terms & Conditions of Lucira Jewelry.")
+  // No DB-level default: the shop-name-aware default text is applied by
+  // upsertSchemeForShop() only when creating a brand-new scheme (see
+  // buildDefaultTermsText in savingsScheme.server.ts), never overwriting an
+  // existing merchant value.
+  termsText                String?
 
   currencySymbol           String   @default("₹")
   primaryColor             String   @default("#5C4642")
@@ -105,6 +109,11 @@ model SavingsEnquiry {
   giftName            String?
   giftValue           Int?
   giftEligible        Boolean  @default(false)
+  // Snapshot of every gift the customer was eligible for at submission time,
+  // recalculated server-side (never trusts client input): array of
+  // { name, value, imageUrl, minAmount }. Legacy giftName/giftValue/giftEligible
+  // columns above are preserved for old records and mirror gifts[0] when present.
+  giftsSnapshot       Json?
   sourceUrl           String?
 
   createdAt           DateTime @default(now())

@@ -1,0 +1,9 @@
+extends: theme-check:theme-app-extension
+
+AssetSizeAppBlockJavaScript:
+  # The savings scheme widget covers gift tiers/summary cards for up to 2
+  # gifts, slider milestones, and the early-redemption popover in a single
+  # file (no bundler in this theme app extension), which puts it over the
+  # default 10KB threshold. Raised to accommodate that; still bounded so an
+  # unrelated regression doesn't balloon unnoticed.
+  threshold_in_bytes: 20000

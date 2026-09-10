@@ -18,25 +18,15 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const corsHeaders = await buildCorsHeadersForOrigin(shopResolution.shop, request);
 
-  const url = new URL(request.url);
-  const productId = url.searchParams.get("productId");
-  if (!productId) {
-    return Response.json(
-      { success: false, error: "Missing productId parameter." },
-      { status: 400, headers: corsHeaders },
-    );
-  }
-
-  const assignment = await prisma.savingsSchemeProduct.findFirst({
-    where: { shop: shopResolution.shop, shopifyProductId: productId },
-    include: { scheme: true },
+  const scheme = await prisma.savingsScheme.findFirst({
+    where: { shop: shopResolution.shop },
+    orderBy: { createdAt: "asc" },
   });
 
-  if (!assignment || assignment.scheme.status !== "active") {
+  if (!scheme || scheme.status !== "active") {
     return Response.json({ enabled: false }, { headers: corsHeaders });
   }
 
-  const { scheme } = assignment;
   const gifts = parseGifts(scheme.gifts).filter((gift) => gift.enabled);
 
   return Response.json(

@@ -1,10 +1,6 @@
 import prisma from "../db.server";
-import type { SavingsScheme, SavingsSchemeProduct } from "@prisma/client";
+import type { SavingsScheme } from "@prisma/client";
 import type { Gift } from "./savingsSchemeCalculator.server";
-
-export type SchemeWithProducts = SavingsScheme & {
-  products: SavingsSchemeProduct[];
-};
 
 export const MAX_GIFTS = 2;
 
@@ -70,10 +66,9 @@ export function shopNameFromDomain(shopDomain: string): string {
     .join(" ");
 }
 
-export async function getSchemeForShop(shop: string): Promise<SchemeWithProducts | null> {
+export async function getSchemeForShop(shop: string): Promise<SavingsScheme | null> {
   return prisma.savingsScheme.findFirst({
     where: { shop },
-    include: { products: true },
     orderBy: { createdAt: "asc" },
   });
 }
@@ -131,7 +126,7 @@ export async function upsertSchemeForShop(
  * Never overwrites a value the merchant already configured.
  */
 export function resolveSchemeDefaults(params: {
-  existing: SchemeWithProducts | null;
+  existing: SavingsScheme | null;
   shopDisplayName: string;
   submitted: {
     minAmount?: number;
@@ -161,19 +156,4 @@ export function resolveSchemeDefaults(params: {
       : (existing?.termsText ?? buildDefaultTermsText(shopDisplayName));
 
   return { minAmount, maxAmount, presetAmounts, termsText };
-}
-
-export async function replaceSchemeProducts(
-  shop: string,
-  schemeId: string,
-  shopifyProductIds: string[],
-): Promise<void> {
-  await prisma.$transaction([
-    prisma.savingsSchemeProduct.deleteMany({ where: { shop, schemeId } }),
-    ...shopifyProductIds.map((shopifyProductId) =>
-      prisma.savingsSchemeProduct.create({
-        data: { shop, schemeId, shopifyProductId },
-      }),
-    ),
-  ]);
 }

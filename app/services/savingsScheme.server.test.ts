@@ -10,7 +10,7 @@ import {
   shopNameFromDomain,
   stripTermsTextPrefix,
 } from "./savingsScheme.server";
-import type { SchemeWithProducts } from "./savingsScheme.server";
+import type { SavingsScheme } from "@prisma/client";
 
 describe("resolveSchemeDefaults", () => {
   it("gives a brand-new scheme the default min, max, and presets", () => {
@@ -58,7 +58,7 @@ describe("resolveSchemeDefaults", () => {
       maxAmount: 19000,
       presetAmounts: [3000, 5000, 10000, 19000],
       termsText: "Existing custom terms",
-    } as SchemeWithProducts;
+    } as SavingsScheme;
 
     const result = resolveSchemeDefaults({
       existing,
@@ -78,7 +78,7 @@ describe("resolveSchemeDefaults", () => {
       maxAmount: 19000,
       presetAmounts: [3000, 5000, 10000, 19000],
       termsText: null,
-    } as SchemeWithProducts;
+    } as SavingsScheme;
 
     const result = resolveSchemeDefaults({
       existing,

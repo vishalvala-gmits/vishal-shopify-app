@@ -12,7 +12,6 @@ import {
   TERMS_TEXT_PREFIX,
   getSchemeForShop,
   parseGifts,
-  replaceSchemeProducts,
   resolveSchemeDefaults,
   shopNameFromDomain,
   stripTermsTextPrefix,
@@ -29,12 +28,6 @@ import type { SchemeValidationErrors } from "../services/savingsSchemeValidation
 // loader/action).
 const MAX_GIFTS_DISPLAY = 2;
 const TERMS_TEXT_PREFIX_DISPLAY = "I agree to Terms & Conditions of ";
-
-export type ProductSummary = {
-  id: string;
-  title: string;
-  imageUrl?: string;
-};
 
 export function getCurrencySymbol(currencyCode: string): string {
   try {
@@ -55,8 +48,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session, admin } = await authenticate.admin(request);
   const scheme = await getSchemeForShop(session.shop);
 
-  const productIds = scheme?.products.map((p) => p.shopifyProductId) ?? [];
-  let initialProducts: ProductSummary[] = [];
   let shopCurrencyCode = "INR";
   let defaultCurrencySymbol = "₹";
   let shopDisplayName = shopNameFromDomain(session.shop);
@@ -64,23 +55,13 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
     const response = await admin.graphql(
       `#graphql
-        query GetShopAndAssignedProducts($ids: [ID!]!) {
+        query GetShopForDefaults {
           shop {
             name
             currencyCode
           }
-          nodes(ids: $ids) {
-            ... on Product {
-              id
-              title
-              featuredImage {
-                url
-              }
-            }
-          }
         }
       `,
-      { variables: { ids: productIds } },
     );
     const json = await response.json();
     if (json.data?.shop?.name) {
@@ -90,23 +71,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       shopCurrencyCode = json.data.shop.currencyCode;
       defaultCurrencySymbol = getCurrencySymbol(shopCurrencyCode);
     }
-    if (json.data?.nodes) {
-      initialProducts = (
-        json.data.nodes as Array<{
-          id: string;
-          title: string;
-          featuredImage?: { url: string } | null;
-        }>
-      )
-        .filter(Boolean)
-        .map((node) => ({
-          id: node.id,
-          title: node.title,
-          imageUrl: node.featuredImage?.url ?? undefined,
-        }));
-    }
   } catch (error) {
-    console.error("Failed to load shop info or assigned products:", error);
+    console.error("Failed to load shop info:", error);
   }
 
   // Defaults are for DISPLAY only when no scheme exists yet — nothing is
@@ -130,7 +96,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     gifts,
     defaults,
     termsTextSuffix,
-    initialProducts,
     defaultCurrencySymbol,
     shopCurrencyCode,
   };
@@ -249,11 +214,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const schemeId = formData.get("schemeId")
     ? String(formData.get("schemeId"))
     : null;
-  const productIdsRaw = String(formData.get("productIds") ?? "");
-  const productIds = productIdsRaw
-    .split(",")
-    .map((id) => id.trim())
-    .filter((id) => id.length > 0);
 
   const errors = validateSavingsSchemeInput({
     name,
@@ -277,38 +237,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 
   try {
-    if (productIds.length > 0) {
-      const response = await admin.graphql(
-        `#graphql
-          query ValidateSavingsSchemeProducts($ids: [ID!]!) {
-            nodes(ids: $ids) {
-              id
-            }
-          }
-        `,
-        { variables: { ids: productIds } },
-      );
-      const json = await response.json();
-      const validIds = new Set(
-        (json.data?.nodes ?? [])
-          .filter(Boolean)
-          .map((node: { id: string }) => node.id),
-      );
-      const invalidIds = productIds.filter((id) => !validIds.has(id));
-      if (invalidIds.length > 0) {
-        return {
-          success: false,
-          errors: {
-            productIds: [
-              "One or more selected products could not be found for this shop.",
-            ],
-          },
-          submitted,
-        } satisfies ActionResult;
-      }
-    }
-
-    const scheme = await upsertSchemeForShop(session.shop, schemeId, {
+    await upsertSchemeForShop(session.shop, schemeId, {
       name,
       durationMonths,
       bonusEnabled,
@@ -325,8 +254,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       primaryColor,
       status: "active",
     });
-
-    await replaceSchemeProducts(session.shop, scheme.id, productIds);
 
     return { success: true } satisfies ActionResult;
   } catch (error) {
@@ -540,20 +467,12 @@ export default function SavingsSchemeSettings() {
     gifts,
     defaults,
     termsTextSuffix,
-    initialProducts,
     defaultCurrencySymbol,
     shopCurrencyCode,
   } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<ActionResult>();
   const shopify = useAppBridge();
   const formRef = useRef<HTMLFormElement>(null);
-
-  const [selectedProducts, setSelectedProducts] =
-    useState<ProductSummary[]>(initialProducts);
-
-  useEffect(() => {
-    setSelectedProducts(initialProducts);
-  }, [initialProducts]);
 
   const [bonusEnabled, setBonusEnabled] = useState(
     scheme?.bonusEnabled ?? false,
@@ -601,50 +520,10 @@ export default function SavingsSchemeSettings() {
       : defaults.presetAmounts
   ).join(", ");
 
-  const pickProducts = async () => {
-    const selection = await shopify.resourcePicker?.({
-      type: "product",
-      multiple: true,
-      selectionIds: selectedProducts.map((item) => ({ id: item.id })),
-    });
-
-    if (selection) {
-      type ResourcePickerItem = {
-        id: string;
-        title: string;
-        images?: Array<{ originalSrc?: string; url?: string }>;
-        featuredImage?: { url?: string };
-      };
-
-      setSelectedProducts(
-        (selection as ResourcePickerItem[]).map((item) => ({
-          id: item.id,
-          title: item.title,
-          imageUrl:
-            item.images?.[0]?.originalSrc ||
-            item.images?.[0]?.url ||
-            item.featuredImage?.url ||
-            undefined,
-        })),
-      );
-    }
-  };
-
-  const removeProduct = (idToRemove: string) => {
-    setSelectedProducts((prev) =>
-      prev.filter((product) => product.id !== idToRemove),
-    );
-  };
-
   return (
     <s-page heading="Savings Scheme" inlineSize="large">
       <fetcher.Form method="post" id="savings-scheme-form" ref={formRef}>
         <input type="hidden" name="schemeId" value={scheme?.id ?? ""} />
-        <input
-          type="hidden"
-          name="productIds"
-          value={selectedProducts.map((product) => product.id).join(",")}
-        />
 
         <s-stack direction="block" gap="large">
           {errors.form && (
@@ -839,85 +718,6 @@ export default function SavingsSchemeSettings() {
             </s-stack>
           </s-section>
 
-          <s-section heading="Assigned products">
-            <s-stack direction="block" gap="base">
-              <s-grid gridTemplateColumns="1fr auto" gap="base" alignItems="center">
-                <s-paragraph color="subdued">
-                  Select the products where this savings scheme calculator
-                  should appear on the storefront.
-                </s-paragraph>
-                <s-button type="button" onClick={pickProducts}>
-                  {selectedProducts.length > 0
-                    ? "Edit selection"
-                    : "Select products"}
-                </s-button>
-              </s-grid>
-
-              {errors.productIds && (
-                <s-banner tone="critical">
-                  <s-paragraph>{errors.productIds[0]}</s-paragraph>
-                </s-banner>
-              )}
-
-              {selectedProducts.length === 0 ? (
-                <s-box
-                  padding="large"
-                  borderWidth="small"
-                  borderColor="subdued"
-                  borderRadius="base"
-                  background="subdued"
-                >
-                  <s-paragraph color="subdued">
-                    No products assigned yet. The savings scheme widget will
-                    not appear on the storefront until at least one product is
-                    assigned.
-                  </s-paragraph>
-                </s-box>
-              ) : (
-                <s-stack direction="block" gap="small-200">
-                  <s-text color="subdued">
-                    <s-text type="strong">{selectedProducts.length}</s-text>{" "}
-                    product{selectedProducts.length === 1 ? "" : "s"} selected
-                  </s-text>
-                  <s-box
-                    borderWidth="small"
-                    borderColor="subdued"
-                    borderRadius="base"
-                  >
-                    <s-stack direction="block" gap="none">
-                      {selectedProducts.map((product, index) => (
-                        <s-stack direction="block" gap="none" key={product.id}>
-                          {index > 0 && <s-divider />}
-                          <s-box padding="small-400">
-                            <s-grid
-                              gridTemplateColumns="auto 1fr auto"
-                              gap="base"
-                              alignItems="center"
-                            >
-                              <s-thumbnail
-                                src={product.imageUrl}
-                                alt={product.title}
-                                size="small-200"
-                              />
-                              <s-text type="strong">{product.title}</s-text>
-                              <s-button
-                                type="button"
-                                variant="tertiary"
-                                tone="critical"
-                                onClick={() => removeProduct(product.id)}
-                              >
-                                Remove
-                              </s-button>
-                            </s-grid>
-                          </s-box>
-                        </s-stack>
-                      ))}
-                    </s-stack>
-                  </s-box>
-                </s-stack>
-              )}
-            </s-stack>
-          </s-section>
         </s-stack>
       </fetcher.Form>
 

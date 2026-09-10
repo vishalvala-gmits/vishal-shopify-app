@@ -44,7 +44,7 @@
     }
 
     var base = appUrl.replace(/\/$/, "");
-    var schemeUrl = base + "/api/storefront/savings-scheme?shop=" + encodeURIComponent(shop) + "&productId=" + encodeURIComponent(prodId);
+    var schemeUrl = base + "/api/storefront/savings-scheme?shop=" + encodeURIComponent(shop) + (prodId ? "&productId=" + encodeURIComponent(prodId) : "");
     var enqUrl = base + "/api/storefront/savings-enquiry?shop=" + encodeURIComponent(shop);
 
     fetch(schemeUrl)

@@ -67,34 +67,17 @@ model SavingsScheme {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  products        SavingsSchemeProduct[]
   enquiries       SavingsEnquiry[]
 
   @@index([shop])
   @@index([shop, status])
 }
 
-model SavingsSchemeProduct {
-  id                String   @id @default(cuid())
-  schemeId          String
-  shop              String
-  shopifyProductId  String
-
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  scheme            SavingsScheme @relation(fields: [schemeId], references: [id], onDelete: Cascade)
-
-  @@unique([shop, shopifyProductId])
-  @@index([shop])
-  @@index([schemeId])
-}
-
 model SavingsEnquiry {
   id                  String   @id @default(cuid())
   shop                String
   schemeId            String
-  shopifyProductId    String
+  shopifyProductId    String?
 
   customerName        String
   customerEmail       String?

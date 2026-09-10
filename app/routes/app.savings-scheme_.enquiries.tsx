@@ -53,7 +53,13 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const currencySymbol = scheme?.currencySymbol || "₹";
 
-  const productIds = Array.from(new Set(enquiries.map((e) => e.shopifyProductId)));
+  const productIds = Array.from(
+    new Set(
+      enquiries
+        .map((e) => e.shopifyProductId)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  );
   const productsById = new Map<string, ProductInfo>();
 
   if (productIds.length > 0) {
@@ -91,7 +97,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   return {
     enquiries: enquiries.map((enquiry) => ({
       ...enquiry,
-      product: productsById.get(enquiry.shopifyProductId) ?? null,
+      product: enquiry.shopifyProductId
+        ? (productsById.get(enquiry.shopifyProductId) ?? null)
+        : null,
     })),
     page,
     hasNextPage: page * PAGE_SIZE < total,

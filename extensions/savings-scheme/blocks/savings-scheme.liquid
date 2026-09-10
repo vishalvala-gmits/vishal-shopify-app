@@ -7,7 +7,7 @@
   id="jss-widget-{{ block.id }}"
   data-jss-widget
   data-shop="{{ shop.permanent_domain }}"
-  data-product-id="gid://shopify/Product/{{ product.id }}"
+  data-product-id="{% if product %}gid://shopify/Product/{{ product.id }}{% endif %}"
   data-app-url="{{ block.settings.app_url }}"
   {{ block.shopify_attributes }}
 >
@@ -214,9 +214,6 @@
 {
   "name": "Savings Scheme Widget",
   "target": "section",
-  "enabled_on": {
-    "templates": ["product"]
-  },
   "stylesheet": "savings-scheme.css",
   "javascript": "savings-scheme.js",
   "settings": [

@@ -16,13 +16,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   return {
     schemeConfigured: Boolean(scheme),
     schemeActive: scheme?.status === "active",
-    assignedProductCount: scheme?.products.length ?? 0,
     enquiryCount,
   };
 };
 
 export default function Index() {
-  const { schemeConfigured, schemeActive, assignedProductCount, enquiryCount } =
+  const { schemeConfigured, schemeActive, enquiryCount } =
     useLoaderData<typeof loader>();
 
   return (
@@ -46,19 +45,10 @@ export default function Index() {
               appear on the storefront.
             </s-paragraph>
           </s-banner>
-        ) : assignedProductCount === 0 ? (
-          <s-banner tone="warning" heading="No products assigned">
-            <s-paragraph>
-              Your scheme is active, but no products are assigned. The
-              storefront widget will not appear until at least one product is
-              selected.
-            </s-paragraph>
-          </s-banner>
         ) : (
           <s-banner tone="success" heading="Savings scheme is live">
             <s-paragraph>
-              Assigned to {assignedProductCount} product
-              {assignedProductCount === 1 ? "" : "s"}.
+              Your savings scheme calculator is live on the storefront.
             </s-paragraph>
           </s-banner>
         )}

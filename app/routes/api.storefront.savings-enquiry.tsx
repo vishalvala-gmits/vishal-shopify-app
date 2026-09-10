@@ -86,9 +86,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   const fieldErrors: Record<string, string[]> = {};
 
-  if (!productId) {
-    fieldErrors.productId = ["Product is required."];
-  }
   if (!name || name.length > 200) {
     fieldErrors.name = ["Name is required and must be a reasonable length."];
   }
@@ -106,16 +103,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     return errorResponse("Please correct the highlighted fields.", 400, corsHeaders, fieldErrors);
   }
 
-  const assignment = await prisma.savingsSchemeProduct.findFirst({
-    where: { shop: shopResolution.shop, shopifyProductId: productId },
-    include: { scheme: true },
+  const scheme = await prisma.savingsScheme.findFirst({
+    where: { shop: shopResolution.shop },
+    orderBy: { createdAt: "asc" },
   });
 
-  if (!assignment || assignment.scheme.status !== "active") {
-    return errorResponse("No active savings scheme for this product.", 404, corsHeaders);
+  if (!scheme || scheme.status !== "active") {
+    return errorResponse("No active savings scheme for this shop.", 404, corsHeaders);
   }
-
-  const { scheme } = assignment;
 
   const monthlyAmountErrors = validateMonthlyAmount({
     monthlyAmount: body.monthlyAmount,
@@ -150,7 +145,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     data: {
       shop: shopResolution.shop,
       schemeId: scheme.id,
-      shopifyProductId: productId,
+      shopifyProductId: productId || null,
       customerName: name,
       customerEmail: email || null,
       customerPhone: phone || null,

@@ -99,6 +99,33 @@
           <span class="jss-safe-pill">100% Capital Safe</span>
         </div>
 
+        <!-- Savings Journey Flow Gauge -->
+        <div class="jss-gauge">
+          <div class="jss-gauge-head">
+            <span class="jss-eyebrow jss-eyebrow-small">Savings Journey Flow</span>
+            <span class="jss-gauge-cycle" data-jss-gauge-cycle></span>
+          </div>
+          <div class="jss-gauge-row">
+            <div class="jss-gauge-box">
+              <span class="jss-gauge-label" data-jss-gauge-deposit-label></span>
+              <span class="jss-gauge-value" data-jss-gauge-deposit></span>
+              <span class="jss-gauge-note" data-jss-gauge-deposit-note></span>
+            </div>
+            <span class="jss-gauge-op" data-jss-gauge-op-plus hidden>+</span>
+            <div class="jss-gauge-box" data-jss-gauge-bonus-box hidden>
+              <span class="jss-gauge-label" data-jss-gauge-bonus-label></span>
+              <span class="jss-gauge-value" data-jss-gauge-bonus></span>
+              <span class="jss-gauge-note" data-jss-gauge-bonus-note></span>
+            </div>
+            <span class="jss-gauge-op" data-jss-gauge-op-equals>=</span>
+            <div class="jss-gauge-box">
+              <span class="jss-gauge-label">Total Payout</span>
+              <span class="jss-gauge-value" data-jss-gauge-total></span>
+              <span class="jss-gauge-note">+ Gift Vouchers</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Main Summary Card -->
         <div class="jss-summary-card">
           <!-- Total Contribution Row -->
@@ -186,6 +213,7 @@
     <button type="button" class="jss-modal-close" data-jss-enquiry-close aria-label="Close">&times;</button>
 
     <form class="jss-enquiry-form" data-jss-enquiry-form>
+      <span class="jss-eyebrow">Reserve Your Plan</span>
       <h3 class="jss-form-heading" id="jss-enquiry-heading-{{ block.id }}">Complete Your Enquiry</h3>
       <p class="jss-form-subheading">Provide your details to register interest and lock today's rate. No immediate payment is required.</p>
       <label class="jss-field">
@@ -195,10 +223,27 @@
       <label class="jss-field">
         <span>Phone Number *</span>
         <div class="jss-phone-field">
-          <span class="jss-phone-prefix">+91</span>
-          <input type="tel" name="phone" data-jss-input-phone placeholder="9876543210" />
+          <div class="jss-country-select" data-jss-country-select>
+            <button type="button" class="jss-country-trigger" data-jss-country-trigger aria-haspopup="listbox" aria-expanded="false">
+              <span data-jss-country-flag></span>
+              <span class="jss-country-dial" data-jss-country-dial></span>
+              <span class="jss-country-caret">&#9662;</span>
+            </button>
+            <input type="hidden" name="countryCode" data-jss-phone-code />
+            <div class="jss-country-panel" data-jss-country-panel hidden role="listbox">
+              <input
+                type="text"
+                class="jss-country-search"
+                data-jss-country-search
+                placeholder="Search country or code..."
+                autocomplete="off"
+              />
+              <div class="jss-country-list" data-jss-country-list></div>
+            </div>
+          </div>
+          <input type="tel" name="phone" data-jss-input-phone placeholder="9876543210" inputmode="tel" />
         </div>
-      </label>         
+      </label>
       <label class="jss-field">
           <span>Email Address</span>
           <input type="email" name="email" data-jss-input-email placeholder="e.g. priya@example.com" />

@@ -78,6 +78,7 @@
 .jss-redemption-popover-backdrop[hidden],
 .jss-modal[hidden],
 .jss-modal-backdrop[hidden],
+.jss-country-panel[hidden],
 [data-jss-gift-img-wrap][hidden] {
   display: none !important;
 }
@@ -461,47 +462,99 @@
 }
 
 .jss-gift-tier-card {
-  padding: 0.85rem 1rem;
-  border-radius: 12px;
+  position: relative;
+  padding: 1rem;
+  border-radius: 14px;
   border: 1px solid var(--jss-border);
-  background: #fafaf9;
+  background: rgba(250, 250, 249, 0.7);
   display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
+  align-items: flex-start;
+  gap: 0.85rem;
+  overflow: hidden;
   transition: all 0.2s ease;
 }
 
 .jss-gift-tier-card[data-unlocked="true"] {
-  background: var(--jss-emerald-light);
   border: 2px solid var(--jss-emerald);
+  background: rgba(236, 246, 240, 0.5);
   box-shadow: 0 2px 8px rgba(22, 91, 60, 0.1);
 }
 
 .jss-gift-tier-icon {
-  font-size: 0.95rem;
-  line-height: 1;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--jss-emerald-light);
+  border: 1px solid var(--jss-emerald-border);
+  color: #0d6b45;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.jss-gift-tier-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.jss-gift-tier-card[data-unlocked="true"] .jss-gift-tier-icon {
+  background: var(--jss-emerald);
+  border-color: #1f7a52;
+  color: #ffffff;
+}
+
+.jss-gift-tier-body {
+  flex: 1;
+  min-width: 0;
 }
 
 .jss-gift-tier-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.4rem;
-  font-size: 0.83rem;
-  font-weight: 600;
-  color: var(--jss-ebony);
 }
 
-.jss-gift-tier-card[data-unlocked="true"] .jss-gift-tier-header {
+.jss-gift-tier-name {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--jss-ebony);
+  letter-spacing: -0.005em;
+}
+
+.jss-gift-tier-card[data-unlocked="true"] .jss-gift-tier-name {
   color: #0d3d29;
 }
 
+.jss-gift-tier-badge {
+  flex-shrink: 0;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--jss-gold-dark);
+  background: rgba(250, 243, 232, 0.9);
+  border: 1px solid rgba(201, 154, 78, 0.3);
+  padding: 0.1rem 0.45rem;
+  border-radius: 6px;
+}
+
+.jss-gift-tier-card[data-unlocked="true"] .jss-gift-tier-badge {
+  color: #0d3d29;
+  background: var(--jss-emerald-light);
+  border-color: var(--jss-emerald-border);
+}
+
 .jss-gift-tier-status {
-  font-size: 0.73rem;
+  margin: 0.3rem 0 0;
+  font-size: 0.68rem;
+  line-height: 1.4;
   color: var(--jss-text-muted);
 }
 
 .jss-gift-tier-card[data-unlocked="true"] .jss-gift-tier-status {
-  color: #0d3d29;
+  color: #1f7a52;
   font-weight: 500;
 }
 
@@ -585,44 +638,50 @@
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 1001;
-  width: min(440px, calc(100vw - 32px));
+  width: min(520px, calc(100vw - 32px));
   max-height: calc(100vh - 32px);
   overflow-y: auto;
   background: #ffffff;
-  border-radius: 14px;
-  padding: 1.75rem;
-  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.3);
+  border: 1px solid var(--jss-border-gold);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 30px 60px -15px rgba(20, 19, 18, 0.25), 0 0 0 1px rgba(201, 154, 78, 0.15);
   animation: jssFadeIn 0.2s ease-out;
 }
 
 .jss-modal-close {
   position: absolute;
-  top: 0.9rem;
-  right: 0.9rem;
-  width: 28px;
-  height: 28px;
+  top: 1.1rem;
+  right: 1.1rem;
+  width: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: none;
+  border: 1px solid var(--jss-border);
   border-radius: 50%;
-  background: #f1f5f9;
+  background: #ffffff;
   font-size: 1.15rem;
   line-height: 1;
   color: var(--jss-text-muted);
   cursor: pointer;
   padding: 0;
+  transition: border-color 0.15s ease, color 0.15s ease;
 }
 
 .jss-modal-close:hover {
-  background: #e2e8f0;
-  color: #1f2937;
+  border-color: var(--jss-gold);
+  color: var(--jss-gold-dark);
 }
 
 .jss-enquiry-form {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 0.95rem;
+}
+
+.jss-enquiry-form > .jss-eyebrow {
+  margin-bottom: -0.5rem;
 }
 
 @keyframes jssFadeIn {
@@ -637,17 +696,20 @@
 }
 
 .jss-form-heading {
-  margin: 0;
+  margin: 0.15rem 0 0;
   font-family: var(--jss-font-serif);
-  font-size: 1.35rem;
-  font-weight: 600;
+  font-size: 1.6rem;
+  font-weight: 500;
   color: var(--jss-ebony);
 }
 
 .jss-form-subheading {
-  margin: -0.5rem 0 0.25rem;
+  margin: 0 0 0.35rem;
   font-size: 0.8rem;
+  line-height: 1.5;
   color: var(--jss-text-muted);
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--jss-border-gold);
 }
 
 .jss-field-row {
@@ -665,18 +727,22 @@
 .jss-field {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #334155;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--jss-ebony);
 }
 
 .jss-field input {
-  padding: 0.65rem 0.75rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--jss-border);
+  border-radius: 10px;
   font-size: 0.9rem;
+  font-weight: 400;
+  font-family: var(--jss-font-sans);
   outline: none;
+  background: #ffffff;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .jss-field input:focus {
@@ -687,9 +753,14 @@
 .jss-phone-field {
   display: flex;
   align-items: stretch;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  overflow: hidden;
+  border: 1px solid var(--jss-border);
+  border-radius: 10px;
+  background: #ffffff;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.jss-phone-field > input {
+  border-radius: 0 10px 10px 0;
 }
 
 .jss-phone-field:focus-within {
@@ -697,15 +768,121 @@
   box-shadow: 0 0 0 2px rgba(201, 154, 78, 0.18);
 }
 
-.jss-phone-prefix {
+/* Custom searchable country-code dropdown */
+.jss-country-select {
+  position: relative;
+  flex-shrink: 0;
+  border-right: 1px solid var(--jss-border);
+}
+
+.jss-country-trigger {
   display: flex;
   align-items: center;
+  gap: 0.35rem;
+  height: 100%;
   padding: 0 0.6rem;
-  background: #f1f5f9;
-  color: #475569;
-  font-size: 0.9rem;
+  border: none;
+  border-radius: 10px 0 0 10px;
+  background: var(--jss-sand);
+  color: var(--jss-ebony);
+  font-size: 0.85rem;
   font-weight: 600;
-  border-right: 1px solid #cbd5e1;
+  font-family: var(--jss-font-sans);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.jss-country-flag {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.jss-country-caret {
+  font-size: 0.6rem;
+  color: var(--jss-text-muted);
+  margin-left: 0.1rem;
+}
+
+.jss-country-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 20;
+  width: max(280px, 100%);
+  max-height: 320px;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border: 1px solid var(--jss-border);
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
+  overflow: hidden;
+}
+
+.jss-country-search {
+  margin: 0.6rem 0.6rem 0.4rem;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--jss-border);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-family: var(--jss-font-sans);
+  outline: none;
+}
+
+.jss-country-search:focus {
+  border-color: var(--jss-gold);
+  box-shadow: 0 0 0 2px rgba(201, 154, 78, 0.18);
+}
+
+.jss-country-list {
+  overflow-y: auto;
+  padding: 0.25rem 0;
+}
+
+.jss-country-option {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0.5rem 0.85rem;
+  border: none;
+  background: none;
+  text-align: left;
+  font-size: 0.83rem;
+  font-family: var(--jss-font-sans);
+  color: var(--jss-ebony);
+  cursor: pointer;
+}
+
+.jss-country-option:hover,
+.jss-country-option[data-active="true"] {
+  background: var(--jss-gold-light);
+}
+
+.jss-country-option-flag {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.jss-country-option-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.jss-country-option-dial {
+  flex-shrink: 0;
+  color: var(--jss-text-muted);
+  font-size: 0.78rem;
+}
+
+.jss-country-empty {
+  padding: 0.85rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--jss-text-muted);
 }
 
 .jss-phone-field input {
@@ -731,16 +908,16 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.75rem 1rem;
-  background: var(--jss-bg-card);
-  border: 1px solid #f1ece4;
-  border-radius: 8px;
+  padding: 0.9rem 1.1rem;
+  background: linear-gradient(180deg, #faf8f5 0%, #f5f0e8 100%);
+  border: 1px solid var(--jss-border-gold);
+  border-radius: 12px;
 }
 
 .jss-plan-summary > div {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.2rem;
 }
 
 .jss-plan-summary-benefit {
@@ -749,21 +926,23 @@
 }
 
 .jss-plan-summary-label {
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  font-family: var(--jss-font-cinzel);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
   color: var(--jss-text-muted);
   text-transform: uppercase;
 }
 
 .jss-plan-summary-value {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #1e293b;
+  font-family: var(--jss-font-serif);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--jss-ebony);
 }
 
 .jss-plan-summary-benefit-value {
-  color: var(--jss-success-color);
+  color: var(--jss-emerald);
 }
 
 .jss-trust-row {
@@ -814,6 +993,93 @@
 
 .jss-success .jss-cta-btn {
   max-width: 200px;
+}
+
+/* Savings Journey Flow Gauge */
+.jss-gauge {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: rgba(243, 239, 232, 0.6);
+  border: 1px solid var(--jss-border);
+  border-radius: 16px;
+}
+
+.jss-gauge-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.jss-gauge-cycle {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #57534e;
+}
+
+.jss-gauge-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  align-items: center;
+  gap: 0.4rem;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .jss-gauge-row {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+  }
+
+  .jss-gauge-op {
+    display: none !important;
+  }
+}
+
+.jss-gauge-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  background: #ffffff;
+  border: 1px solid var(--jss-border);
+  border-radius: 12px;
+  padding: 0.6rem 0.5rem;
+}
+
+.jss-gauge-label {
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--jss-text-muted);
+}
+
+.jss-gauge-value {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--jss-ebony);
+}
+
+.jss-gauge-note {
+  font-size: 0.6rem;
+  color: #a8a29e;
+  font-weight: 400;
+}
+
+.jss-gauge-op {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid var(--jss-border);
+  color: #a8a29e;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  margin: 0 auto;
 }
 
 /* RIGHT COLUMN: Summary Card */
@@ -1075,9 +1341,9 @@
    card, positioned by JS relative to the redemption grid so it always stays
    within that section's own bounds and never overlaps unrelated cards. */
 .jss-redemption-popover {
-  position: absolute;
-  z-index: 30;
-  width: min(280px, 100%);
+  position: fixed;
+  z-index: 1200;
+  width: min(280px, calc(100vw - 24px));
   max-height: min(360px, calc(100vh - 32px));
   overflow-y: auto;
   background: #ffffff;

@@ -29,6 +29,202 @@
     return Math.max(0, gift.minimumContributionToUnlock - amt);
   }
 
+  // Global country calling codes for the enquiry form's phone field. Region
+  // is the ISO 3166-1 alpha-2 code, used both to render a flag emoji and to
+  // match the browser's locale for auto-detecting a sensible default.
+  var COUNTRY_CODES = [
+    { region: "AF", dial: "+93", name: "Afghanistan" }, { region: "AL", dial: "+355", name: "Albania" },
+    { region: "DZ", dial: "+213", name: "Algeria" }, { region: "AD", dial: "+376", name: "Andorra" },
+    { region: "AO", dial: "+244", name: "Angola" }, { region: "AR", dial: "+54", name: "Argentina" },
+    { region: "AM", dial: "+374", name: "Armenia" }, { region: "AU", dial: "+61", name: "Australia" },
+    { region: "AT", dial: "+43", name: "Austria" }, { region: "AZ", dial: "+994", name: "Azerbaijan" },
+    { region: "BH", dial: "+973", name: "Bahrain" }, { region: "BD", dial: "+880", name: "Bangladesh" },
+    { region: "BY", dial: "+375", name: "Belarus" }, { region: "BE", dial: "+32", name: "Belgium" },
+    { region: "BZ", dial: "+501", name: "Belize" }, { region: "BJ", dial: "+229", name: "Benin" },
+    { region: "BT", dial: "+975", name: "Bhutan" }, { region: "BO", dial: "+591", name: "Bolivia" },
+    { region: "BA", dial: "+387", name: "Bosnia and Herzegovina" }, { region: "BW", dial: "+267", name: "Botswana" },
+    { region: "BR", dial: "+55", name: "Brazil" }, { region: "BN", dial: "+673", name: "Brunei" },
+    { region: "BG", dial: "+359", name: "Bulgaria" }, { region: "BF", dial: "+226", name: "Burkina Faso" },
+    { region: "KH", dial: "+855", name: "Cambodia" }, { region: "CM", dial: "+237", name: "Cameroon" },
+    { region: "CA", dial: "+1", name: "Canada" }, { region: "CL", dial: "+56", name: "Chile" },
+    { region: "CN", dial: "+86", name: "China" }, { region: "CO", dial: "+57", name: "Colombia" },
+    { region: "CR", dial: "+506", name: "Costa Rica" }, { region: "HR", dial: "+385", name: "Croatia" },
+    { region: "CU", dial: "+53", name: "Cuba" }, { region: "CY", dial: "+357", name: "Cyprus" },
+    { region: "CZ", dial: "+420", name: "Czechia" }, { region: "DK", dial: "+45", name: "Denmark" },
+    { region: "DO", dial: "+1", name: "Dominican Republic" }, { region: "EC", dial: "+593", name: "Ecuador" },
+    { region: "EG", dial: "+20", name: "Egypt" }, { region: "SV", dial: "+503", name: "El Salvador" },
+    { region: "EE", dial: "+372", name: "Estonia" }, { region: "ET", dial: "+251", name: "Ethiopia" },
+    { region: "FJ", dial: "+679", name: "Fiji" }, { region: "FI", dial: "+358", name: "Finland" },
+    { region: "FR", dial: "+33", name: "France" }, { region: "GE", dial: "+995", name: "Georgia" },
+    { region: "DE", dial: "+49", name: "Germany" }, { region: "GH", dial: "+233", name: "Ghana" },
+    { region: "GR", dial: "+30", name: "Greece" }, { region: "GT", dial: "+502", name: "Guatemala" },
+    { region: "HN", dial: "+504", name: "Honduras" }, { region: "HK", dial: "+852", name: "Hong Kong" },
+    { region: "HU", dial: "+36", name: "Hungary" }, { region: "IS", dial: "+354", name: "Iceland" },
+    { region: "IN", dial: "+91", name: "India" }, { region: "ID", dial: "+62", name: "Indonesia" },
+    { region: "IR", dial: "+98", name: "Iran" }, { region: "IQ", dial: "+964", name: "Iraq" },
+    { region: "IE", dial: "+353", name: "Ireland" }, { region: "IL", dial: "+972", name: "Israel" },
+    { region: "IT", dial: "+39", name: "Italy" }, { region: "JM", dial: "+1", name: "Jamaica" },
+    { region: "JP", dial: "+81", name: "Japan" }, { region: "JO", dial: "+962", name: "Jordan" },
+    { region: "KZ", dial: "+7", name: "Kazakhstan" }, { region: "KE", dial: "+254", name: "Kenya" },
+    { region: "KW", dial: "+965", name: "Kuwait" }, { region: "KG", dial: "+996", name: "Kyrgyzstan" },
+    { region: "LA", dial: "+856", name: "Laos" }, { region: "LV", dial: "+371", name: "Latvia" },
+    { region: "LB", dial: "+961", name: "Lebanon" }, { region: "LY", dial: "+218", name: "Libya" },
+    { region: "LI", dial: "+423", name: "Liechtenstein" }, { region: "LT", dial: "+370", name: "Lithuania" },
+    { region: "LU", dial: "+352", name: "Luxembourg" }, { region: "MO", dial: "+853", name: "Macao" },
+    { region: "MG", dial: "+261", name: "Madagascar" }, { region: "MY", dial: "+60", name: "Malaysia" },
+    { region: "MV", dial: "+960", name: "Maldives" }, { region: "ML", dial: "+223", name: "Mali" },
+    { region: "MT", dial: "+356", name: "Malta" }, { region: "MU", dial: "+230", name: "Mauritius" },
+    { region: "MX", dial: "+52", name: "Mexico" }, { region: "MD", dial: "+373", name: "Moldova" },
+    { region: "MC", dial: "+377", name: "Monaco" }, { region: "MN", dial: "+976", name: "Mongolia" },
+    { region: "ME", dial: "+382", name: "Montenegro" }, { region: "MA", dial: "+212", name: "Morocco" },
+    { region: "MZ", dial: "+258", name: "Mozambique" }, { region: "MM", dial: "+95", name: "Myanmar" },
+    { region: "NA", dial: "+264", name: "Namibia" }, { region: "NP", dial: "+977", name: "Nepal" },
+    { region: "NL", dial: "+31", name: "Netherlands" }, { region: "NZ", dial: "+64", name: "New Zealand" },
+    { region: "NI", dial: "+505", name: "Nicaragua" }, { region: "NE", dial: "+227", name: "Niger" },
+    { region: "NG", dial: "+234", name: "Nigeria" }, { region: "NO", dial: "+47", name: "Norway" },
+    { region: "OM", dial: "+968", name: "Oman" }, { region: "PK", dial: "+92", name: "Pakistan" },
+    { region: "PA", dial: "+507", name: "Panama" }, { region: "PG", dial: "+675", name: "Papua New Guinea" },
+    { region: "PY", dial: "+595", name: "Paraguay" }, { region: "PE", dial: "+51", name: "Peru" },
+    { region: "PH", dial: "+63", name: "Philippines" }, { region: "PL", dial: "+48", name: "Poland" },
+    { region: "PT", dial: "+351", name: "Portugal" }, { region: "PR", dial: "+1", name: "Puerto Rico" },
+    { region: "QA", dial: "+974", name: "Qatar" }, { region: "RO", dial: "+40", name: "Romania" },
+    { region: "RU", dial: "+7", name: "Russia" }, { region: "RW", dial: "+250", name: "Rwanda" },
+    { region: "SA", dial: "+966", name: "Saudi Arabia" }, { region: "SN", dial: "+221", name: "Senegal" },
+    { region: "RS", dial: "+381", name: "Serbia" }, { region: "SG", dial: "+65", name: "Singapore" },
+    { region: "SK", dial: "+421", name: "Slovakia" }, { region: "SI", dial: "+386", name: "Slovenia" },
+    { region: "ZA", dial: "+27", name: "South Africa" }, { region: "KR", dial: "+82", name: "South Korea" },
+    { region: "ES", dial: "+34", name: "Spain" }, { region: "LK", dial: "+94", name: "Sri Lanka" },
+    { region: "SD", dial: "+249", name: "Sudan" }, { region: "SE", dial: "+46", name: "Sweden" },
+    { region: "CH", dial: "+41", name: "Switzerland" }, { region: "SY", dial: "+963", name: "Syria" },
+    { region: "TW", dial: "+886", name: "Taiwan" }, { region: "TJ", dial: "+992", name: "Tajikistan" },
+    { region: "TZ", dial: "+255", name: "Tanzania" }, { region: "TH", dial: "+66", name: "Thailand" },
+    { region: "TN", dial: "+216", name: "Tunisia" }, { region: "TR", dial: "+90", name: "Turkey" },
+    { region: "TM", dial: "+993", name: "Turkmenistan" }, { region: "UG", dial: "+256", name: "Uganda" },
+    { region: "UA", dial: "+380", name: "Ukraine" }, { region: "AE", dial: "+971", name: "United Arab Emirates" },
+    { region: "GB", dial: "+44", name: "United Kingdom" }, { region: "US", dial: "+1", name: "United States" },
+    { region: "UY", dial: "+598", name: "Uruguay" }, { region: "UZ", dial: "+998", name: "Uzbekistan" },
+    { region: "VE", dial: "+58", name: "Venezuela" }, { region: "VN", dial: "+84", name: "Vietnam" },
+    { region: "YE", dial: "+967", name: "Yemen" }, { region: "ZM", dial: "+260", name: "Zambia" },
+    { region: "ZW", dial: "+263", name: "Zimbabwe" },
+  ].sort(function (a, b) { return a.name.localeCompare(b.name); });
+
+  function regionToFlagEmoji(region) {
+    if (!region || region.length !== 2) return "";
+    var A = 0x1f1e6;
+    var chars = region.toUpperCase().split("").map(function (c) {
+      return String.fromCodePoint(A + (c.charCodeAt(0) - 65));
+    });
+    return chars.join("");
+  }
+
+  function detectRegion() {
+    try {
+      var locales = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language];
+      for (var i = 0; i < locales.length; i++) {
+        var parts = String(locales[i] || "").split("-");
+        if (parts[1]) {
+          var region = parts[1].toUpperCase();
+          if (COUNTRY_CODES.some(function (c) { return c.region === region; })) return region;
+        }
+      }
+    } catch (e) { /* ignore */ }
+
+    try {
+      var tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+      if (tz === "Asia/Calcutta" || tz === "Asia/Kolkata") return "IN";
+      if (tz.indexOf("America/") === 0) return "US";
+      if (tz.indexOf("Europe/London") === 0) return "GB";
+      if (tz.indexOf("Asia/Dubai") === 0) return "AE";
+      if (tz.indexOf("Australia/") === 0) return "AU";
+    } catch (e) { /* ignore */ }
+
+    return "IN";
+  }
+
+  function setupCountrySelect(container) {
+    if (!container || container.dataset.jssPopulated) return;
+    container.dataset.jssPopulated = "true";
+
+    var trigger = container.querySelector("[data-jss-country-trigger]");
+    var flagEl = container.querySelector("[data-jss-country-flag]");
+    var dialEl = container.querySelector("[data-jss-country-dial]");
+    var hiddenInput = container.querySelector("[data-jss-phone-code]");
+    var panel = container.querySelector("[data-jss-country-panel]");
+    var search = container.querySelector("[data-jss-country-search]");
+    var list = container.querySelector("[data-jss-country-list]");
+
+    function selectCountry(country) {
+      hiddenInput.value = country.dial;
+      flagEl.textContent = regionToFlagEmoji(country.region);
+      dialEl.textContent = country.dial;
+      trigger.setAttribute("data-region", country.region);
+    }
+
+    function renderList(filter) {
+      var q = (filter || "").trim().toLowerCase();
+      var items = !q
+        ? COUNTRY_CODES
+        : COUNTRY_CODES.filter(function (c) {
+            return c.name.toLowerCase().indexOf(q) !== -1 || c.dial.indexOf(q) !== -1 || c.dial.replace("+", "").indexOf(q) !== -1;
+          });
+
+      list.innerHTML = "";
+      if (items.length === 0) {
+        list.appendChild(el("div", "jss-country-empty", "No matching country"));
+        return;
+      }
+      items.forEach(function (c) {
+        var opt = el("button", "jss-country-option");
+        opt.type = "button";
+        opt.setAttribute("role", "option");
+        if (hiddenInput.value === c.dial && trigger.getAttribute("data-region") === c.region) {
+          opt.setAttribute("data-active", "true");
+        }
+        opt.appendChild(el("span", "jss-country-option-flag", regionToFlagEmoji(c.region)));
+        opt.appendChild(el("span", "jss-country-option-name", c.name));
+        opt.appendChild(el("span", "jss-country-option-dial", c.dial));
+        opt.addEventListener("click", function () {
+          selectCountry(c);
+          closePanel();
+        });
+        list.appendChild(opt);
+      });
+    }
+
+    function openPanel() {
+      panel.hidden = false;
+      trigger.setAttribute("aria-expanded", "true");
+      renderList("");
+      search.value = "";
+      window.setTimeout(function () { search.focus(); }, 0);
+    }
+
+    function closePanel() {
+      panel.hidden = true;
+      trigger.setAttribute("aria-expanded", "false");
+    }
+
+    trigger.addEventListener("click", function (ev) {
+      ev.stopPropagation();
+      if (panel.hidden) openPanel();
+      else closePanel();
+    });
+
+    search.addEventListener("input", function () { renderList(search.value); });
+    search.addEventListener("click", function (ev) { ev.stopPropagation(); });
+    search.addEventListener("keydown", function (ev) {
+      if (ev.key === "Escape") { closePanel(); trigger.focus(); }
+    });
+
+    document.addEventListener("click", function (ev) {
+      if (!panel.hidden && !container.contains(ev.target)) closePanel();
+    });
+
+    var detected = detectRegion();
+    var match = COUNTRY_CODES.find(function (c) { return c.region === detected; }) || COUNTRY_CODES.find(function (c) { return c.region === "IN"; });
+    selectCountry(match || COUNTRY_CODES[0]);
+  }
+
   function initWidget(root) {
     var shop = root.getAttribute("data-shop");
     var prodId = root.getAttribute("data-product-id");
@@ -109,6 +305,12 @@
         pContainer.appendChild(w);
       });
 
+      var GIFT_ICON_SVG =
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+        '<path d="M20 12v10H4V12"></path><path d="M2 7h20v5H2z"></path><path d="M12 22V7"></path>' +
+        '<path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>' +
+        "</svg>";
+
       var gTiersContainer = q("[data-jss-gift-tiers]");
       var gTiersLabel = q("[data-jss-gift-tiers-label]");
       var tierEls = [];
@@ -118,12 +320,20 @@
         gTiersLabel.hidden = false;
         gifts.forEach(function (gift, i) {
           var card = el("div", "jss-gift-tier-card");
+
+          var icon = el("div", "jss-gift-tier-icon");
+          icon.innerHTML = GIFT_ICON_SVG;
+          card.appendChild(icon);
+
+          var body = el("div", "jss-gift-tier-body");
           var header = el("div", "jss-gift-tier-header");
-          header.appendChild(el("span", "jss-gift-tier-icon", "🎁"));
-          header.appendChild(el("span", "jss-gift-tier-title", (gift.name || "Free Gift") + (gift.value ? " Worth " + fmt(gift.value, sym) : "")));
-          var status = el("span", "jss-gift-tier-status");
-          card.appendChild(header);
-          card.appendChild(status);
+          header.appendChild(el("h4", "jss-gift-tier-name", gift.name || "Free Gift"));
+          header.appendChild(el("span", "jss-gift-tier-badge", gift.value ? fmt(gift.value, sym) : ""));
+          body.appendChild(header);
+          var status = el("p", "jss-gift-tier-status");
+          body.appendChild(status);
+          card.appendChild(body);
+
           gTiersContainer.appendChild(card);
           tierEls.push({ card: card, status: status, gift: gift, marker: giftMarkers[i] });
         });
@@ -199,20 +409,21 @@
       }
 
       function positionPopover(card) {
-        var grid = card.parentElement;
-        var gridRect = grid.getBoundingClientRect();
         var cardRect = card.getBoundingClientRect();
 
         popover.style.visibility = "hidden";
         popover.hidden = false;
         var popRect = popover.getBoundingClientRect();
 
-        var top = cardRect.top - gridRect.top - popRect.height - 10;
-        if (top < 0) top = cardRect.bottom - gridRect.top + 10;
+        // Always open above the card (viewport-fixed, so it's never clipped
+        // by the redemption grid's own bounds) - clamp to stay on-screen if
+        // the card is near the very top of the viewport.
+        var top = cardRect.top - popRect.height - 10;
+        top = Math.max(8, top);
 
-        var left = cardRect.left - gridRect.left;
-        var maxLeft = Math.max(0, gridRect.width - popRect.width);
-        left = Math.max(0, Math.min(left, maxLeft));
+        var left = cardRect.left;
+        var maxLeft = Math.max(8, window.innerWidth - popRect.width - 8);
+        left = Math.max(8, Math.min(left, maxLeft));
 
         popover.style.top = top + "px";
         popover.style.left = left + "px";
@@ -272,6 +483,13 @@
       window.addEventListener("resize", function () {
         if (!popover.hidden && activeCard) positionPopover(activeCard);
       });
+      // Popover is viewport-fixed (so it can escape the grid's own bounds
+      // and always open above the card) - on scroll it would otherwise
+      // visually detach from the card, so just close it instead of
+      // repositioning on every scroll frame.
+      window.addEventListener("scroll", function () {
+        if (!popover.hidden) closePopover();
+      }, { passive: true, capture: true });
 
       function upd(val) {
         sld.value = String(val);
@@ -305,6 +523,24 @@
         } else {
           bRow.hidden = true;
         }
+
+        q("[data-jss-gauge-cycle]").textContent = totMonths + "-Month Cycle";
+        q("[data-jss-gauge-deposit-label]").textContent = s.durationMonths + " Mo. Deposit";
+        q("[data-jss-gauge-deposit]").textContent = fmt(contrib, sym);
+        q("[data-jss-gauge-deposit-note]").textContent = benefit > 0 ? Math.round((contrib / benefit) * 100) + "% of Total" : "";
+        var gaugeBonusBox = q("[data-jss-gauge-bonus-box]");
+        var gaugePlusOp = q("[data-jss-gauge-op-plus]");
+        if (s.bonusEnabled) {
+          gaugeBonusBox.hidden = false;
+          gaugePlusOp.hidden = false;
+          q("[data-jss-gauge-bonus-label]").textContent = ord(totMonths) + " Free Mo.";
+          q("[data-jss-gauge-bonus]").textContent = fmt(bonus, sym);
+          q("[data-jss-gauge-bonus-note]").textContent = "100% Covered";
+        } else {
+          gaugeBonusBox.hidden = true;
+          gaugePlusOp.hidden = true;
+        }
+        q("[data-jss-gauge-total]").textContent = fmt(benefit, sym);
 
         tierEls.forEach(function (t) {
           var unlocked = isGiftEligible(t.gift, val);
@@ -376,6 +612,7 @@
       var modalBackdrop = root.querySelector("[data-jss-enquiry-backdrop]");
       var enqForm = modal.querySelector("[data-jss-enquiry-form]");
       var successEl = modal.querySelector("[data-jss-success]");
+      setupCountrySelect(modal.querySelector("[data-jss-country-select]"));
 
       function openModal() {
         modal.hidden = false;
@@ -424,7 +661,8 @@
         fErr.hidden = true;
         var nm = modal.querySelector("[data-jss-input-name]").value.trim();
         var phRaw = modal.querySelector("[data-jss-input-phone]").value.trim();
-        var ph = phRaw ? (phRaw.charAt(0) === "+" ? phRaw : "+91" + phRaw) : "";
+        var phCode = modal.querySelector("[data-jss-phone-code]").value || "+91";
+        var ph = phRaw ? (phRaw.charAt(0) === "+" ? phRaw : phCode + phRaw) : "";
         var em = modal.querySelector("[data-jss-input-email]").value.trim();
 
         if (!nm || (!ph && !em)) {

@@ -1,6 +1,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 
 <div
   class="jss-widget"
@@ -15,15 +15,27 @@
   <div class="jss-error" data-jss-error hidden>Savings scheme is currently unavailable.</div>
 
   <div class="jss-content" data-jss-content hidden>
-    <div class="jss-grid">
-      <!-- LEFT COLUMN: Monthly Contribution & Controls -->
-      <div class="jss-col jss-col-controls">
-        <h2 class="jss-title">Adjust your monthly premium</h2>
+    <div class="jss-canvas">
+      <!-- LEFT REGION: Custom Allocation Controls (7 cols) -->
+      <section class="jss-col jss-col-controls" aria-label="Contribution Selector">
+        <div class="jss-region-head">
+          <div>
+            <span class="jss-eyebrow">Step 01 &bull; Custom Allocation</span>
+            <h2 class="jss-title">Select Your Monthly Deposit</h2>
+          </div>
+          <div class="jss-tenure-pill" data-jss-tenure-pill>
+            <span class="jss-tenure-dot"></span>
+            <span data-jss-tenure-label></span>
+          </div>
+        </div>
 
         <!-- Current Amount Display Card -->
         <div class="jss-amount-card">
-          <span class="jss-amount-card-label">MONTHLY PREMIUM</span>
-          <span class="jss-amount-card-value" data-jss-amount-display></span>
+          <span class="jss-amount-card-label">Configured Monthly Allocation</span>
+          <div class="jss-amount-card-row">
+            <span class="jss-amount-card-value" data-jss-amount-display></span>
+          </div>
+          <p class="jss-amount-card-note" data-jss-contribution-sub></p>
         </div>
 
         <!-- Interactive Slider with Milestone Pins -->
@@ -45,22 +57,28 @@
           </div>
         </div>
 
-        <!-- Tiered Gift Benefit Cards (0-2, populated dynamically via JS) -->
-        <div class="jss-gift-tiers" data-jss-gift-tiers hidden></div>
-
-        <!-- OR Divider -->
-        <div class="jss-divider">
-          <span>OR</span>
+        <!-- Preset Quick-Select Amount Chips -->
+        <div class="jss-presets-block">
+          <div class="jss-block-head">
+            <span class="jss-eyebrow jss-eyebrow-small">Curated Amounts</span>
+            <span class="jss-block-hint">Tap to auto-configure</span>
+          </div>
+          <div class="jss-presets" data-jss-presets>
+            <!-- Buttons rendered dynamically via JS -->
+          </div>
         </div>
 
-        <!-- Preset Quick-Select Amount Chips -->
-        <div class="jss-presets" data-jss-presets>
-          <!-- Buttons rendered dynamically via JS -->
+        <!-- Tiered Gift Benefit Cards (0-2, populated dynamically via JS) -->
+        <div class="jss-gift-tiers-block">
+          <span class="jss-eyebrow jss-eyebrow-small" data-jss-gift-tiers-label hidden>Guaranteed Tier Privileges</span>
+          <div class="jss-gift-tiers" data-jss-gift-tiers hidden></div>
         </div>
 
         <!-- Primary Action & Terms Checkbox -->
         <div class="jss-action-group">
-          <button type="button" class="jss-cta-btn" data-jss-cta>CONTINUE</button>
+          <button type="button" class="jss-cta-btn" data-jss-cta>
+            <span>CONTINUE</span>
+          </button>
 
           <label class="jss-terms-label">
             <input type="checkbox" class="jss-terms-checkbox" data-jss-terms />
@@ -69,14 +87,19 @@
             </span>
           </label>
         </div>
+      </section>
 
-      </div>
+      <!-- RIGHT REGION: Maturity Projection & Financial Breakdown (5 cols) -->
+      <section class="jss-col jss-col-summary" aria-label="Maturity Summary">
+        <div class="jss-region-head">
+          <div>
+            <span class="jss-eyebrow">Financial Statement</span>
+            <h2 class="jss-title">Maturity Projection</h2>
+          </div>
+          <span class="jss-safe-pill">100% Capital Safe</span>
+        </div>
 
-      <!-- RIGHT COLUMN: Estimated Premium Summary & Early Redemption -->
-      <div class="jss-col jss-col-summary">
-        <h2 class="jss-title">Estimated Premium Summary</h2>
-
-        <!-- Main Beige Summary Card -->
+        <!-- Main Summary Card -->
         <div class="jss-summary-card">
           <!-- Total Contribution Row -->
           <div class="jss-summary-item">
@@ -84,7 +107,6 @@
               <span class="jss-bullet jss-bullet-primary"></span>
               <div>
                 <p class="jss-summary-item-label">Your Total Contribution</p>
-                <p class="jss-summary-item-sublabel" data-jss-contribution-sub></p>
               </div>
             </div>
             <span class="jss-summary-item-val" data-jss-contribution></span>
@@ -154,7 +176,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   </div>
 

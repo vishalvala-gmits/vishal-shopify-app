@@ -12,7 +12,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   await db.$transaction([
     db.savingsEnquiry.deleteMany({ where: { shop } }),
-    db.savingsSchemeProduct.deleteMany({ where: { shop } }),
     db.savingsScheme.deleteMany({ where: { shop } }),
     db.session.deleteMany({ where: { shop } }),
   ]);

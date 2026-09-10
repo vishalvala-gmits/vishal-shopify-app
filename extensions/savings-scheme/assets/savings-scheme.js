@@ -83,6 +83,9 @@
       q("[data-jss-max-label]").textContent = "MAX " + fmt(s.maxAmount, sym);
       if (s.termsText) q("[data-jss-terms-text]").textContent = s.termsText;
 
+      var totMonthsAll = s.durationMonths + (s.bonusEnabled ? s.bonusMonths : 0);
+      q("[data-jss-tenure-label]").textContent = "Fixed " + totMonthsAll + "-Month Tenure";
+
       mContainer.innerHTML = "";
       var giftMarkers = gifts.map(function (gift) {
         var gt = gift.minimumContributionToUnlock != null ? gift.minimumContributionToUnlock : s.minAmount;
@@ -107,10 +110,12 @@
       });
 
       var gTiersContainer = q("[data-jss-gift-tiers]");
+      var gTiersLabel = q("[data-jss-gift-tiers-label]");
       var tierEls = [];
       gTiersContainer.innerHTML = "";
       if (gifts.length) {
         gTiersContainer.hidden = false;
+        gTiersLabel.hidden = false;
         gifts.forEach(function (gift, i) {
           var card = el("div", "jss-gift-tier-card");
           var header = el("div", "jss-gift-tier-header");
@@ -124,6 +129,7 @@
         });
       } else {
         gTiersContainer.hidden = true;
+        gTiersLabel.hidden = true;
       }
 
       var heroList = q("[data-jss-gift-card]");

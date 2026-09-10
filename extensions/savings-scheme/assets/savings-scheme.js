@@ -558,6 +558,7 @@
         q("[data-jss-spend]").textContent = fmt(contrib, sym);
         q("[data-jss-benefit]").textContent = fmt(totalBenefitWithGift, sym);
         q("[data-jss-benefit-sub]").textContent = "(After " + totMonths + " Months)";
+        q("[data-jss-benefit-threshold]").textContent = fmt(totalBenefitWithGift, sym);
 
         var bRow = q("[data-jss-bonus-row]");
         if (s.bonusEnabled) {

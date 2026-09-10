@@ -1086,6 +1086,22 @@
   margin: 0 auto;
 }
 
+/* Dynamic amount below the widget: this always mirrors Total Benefit Value. */
+.jss-purchase-difference-note {
+  margin: 0 clamp(1.5rem, 2.5vw, 2.5rem);
+  padding: 1.5rem 0 0;
+  border-top: 1px solid var(--jss-border);
+  text-align: center;
+  color: var(--jss-text-muted);
+  font-size: 1.125rem;
+  line-height: 1.5;
+}
+
+.jss-purchase-difference-note strong {
+  color: var(--jss-primary-color);
+  font-weight: 600;
+}
+
 /* RIGHT COLUMN: Summary Card */
 .jss-summary-card {
   background: var(--jss-card);

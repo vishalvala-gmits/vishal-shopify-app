@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import type { HeadersFunction, LoaderFunctionArgs } from "react-router";
-import { useLoaderData, useRouteError } from "react-router";
+import { Link, useLoaderData, useRouteError } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { authenticate } from "../shopify.server";
 import { getSchemeForShop, parseGifts } from "../services/savingsScheme.server";
@@ -127,9 +127,9 @@ export default function Index() {
 
       <div className="jss-dash-topbar">
         <h1 className="jss-dash-title">Savings Scheme</h1>
-        <a className="jss-dash-btn jss-dash-btn-primary" href={editHref}>
+        <Link className="jss-dash-btn jss-dash-btn-primary" to={editHref}>
           {schemeConfigured ? "Edit scheme" : "Set up scheme"}
-        </a>
+        </Link>
       </div>
 
       {!schemeConfigured ? (
@@ -156,9 +156,9 @@ export default function Index() {
                 </li>
               </ul>
             </div>
-            <a className="jss-dash-btn jss-dash-btn-primary" href={editHref} style={{ alignSelf: "flex-start" }}>
+            <Link className="jss-dash-btn jss-dash-btn-primary" to={editHref} style={{ alignSelf: "flex-start" }}>
               Set up scheme
-            </a>
+            </Link>
           </div>
         </div>
       ) : (
@@ -225,9 +225,9 @@ export default function Index() {
                       Core rules active for visitor calculation &amp; enrollment
                     </p>
                   </div>
-                  <a className="jss-dash-link-gold" href={editHref}>
+                  <Link className="jss-dash-link-gold" to={editHref}>
                     Edit configuration <span aria-hidden="true">&rsaquo;</span>
-                  </a>
+                  </Link>
                 </div>
                 <div className="jss-dash-card-body">
                   <div className="jss-dash-config-grid">
@@ -355,9 +355,9 @@ export default function Index() {
                     </table>
                   </div>
                   <div className="jss-dash-table-footer">
-                    <a className="jss-dash-btn jss-dash-btn-outline" href={enquiriesHref}>
+                    <Link className="jss-dash-btn jss-dash-btn-outline" to={enquiriesHref}>
                       View all {enquiryCount} enquir{enquiryCount === 1 ? "y" : "ies"}
-                    </a>
+                    </Link>
                     <span className="jss-dash-muted-sm">
                       Showing {filteredEnquiries.length} of {enquiryCount} entries
                     </span>
@@ -375,19 +375,19 @@ export default function Index() {
               <div className="jss-dash-card-body">
                 <ul className="jss-dash-quicklinks">
                   <li>
-                    <a href={editHref}>
+                    <Link to={editHref}>
                       <span className="jss-dash-mini-dot" />
                       Scheme settings
                       <span className="jss-dash-chev" aria-hidden="true">&rsaquo;</span>
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a href={enquiriesHref}>
+                    <Link to={enquiriesHref}>
                       <span className="jss-dash-mini-dot" />
                       Customer enquiries
                       <span className="jss-dash-count">{enquiryCount}</span>
                       <span className="jss-dash-chev" aria-hidden="true">&rsaquo;</span>
-                    </a>
+                    </Link>
                   </li>
                 </ul>
               </div>
@@ -441,7 +441,7 @@ const DASH_CSS = `
   color: var(--dark);
   background: var(--canvas);
   padding: 32px clamp(16px, 4vw, 48px) 48px;
-  // max-width: 1280px;
+  max-width: 1280px;
   margin: 0 auto;
 }
 .jss-dash * { box-sizing: border-box; }

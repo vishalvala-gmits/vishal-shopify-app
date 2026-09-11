@@ -1,794 +1,625 @@
 <!DOCTYPE html>
-<html class="scroll-smooth" lang="en" style="">
 
-<head>
-  <meta charset="utf-8">
-  <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>Golden Harvest Atelier • Monthly Gold Savings Calculator | AURUM</title>
-  <!-- Google Fonts: Cormorant Garamond & Cinzel & Plus Jakarta Sans -->
-  <link href="https://fonts.googleapis.com" rel="preconnect">
-  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
-  <link
-    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&amp;family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&amp;family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap"
-    rel="stylesheet">
-  <!-- Material Symbols -->
-  <link
-    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@200..700,0..1&amp;display=swap"
-    rel="stylesheet">
-  <!-- Tailwind CSS CDN with plugins -->
-  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  <script>
+<html class="h-full bg-[#FBFBF9] text-[#1C1917]" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Savings Scheme Dashboard | Aurum Atelier Privé Merchant Portal</title>
+<!-- Tailwind CSS v3 with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            atelier: {
-              canvas: '#F9F7F3',
-              sand: '#F3EFE8',
-              card: '#FFFFFF',
-              border: '#E8E1D5',
-              borderGold: 'rgba(201, 154, 78, 0.35)',
-              gold: '#C99A4E',
-              goldLight: '#FAF3E8',
-              goldDark: '#9F742C',
-              goldMuted: '#D8B87A',
-              ebony: '#141312',
-              charcoal: '#22201E',
-              muted: '#7B756E',
-              emerald: '#165B3C',
-              emeraldLight: '#ECF6F0',
-              emeraldBorder: '#A3D4BA'
+            brand: {
+              gold: '#C5A059',
+              goldLight: '#F7F3EB',
+              goldHover: '#B28F47',
+              dark: '#1C1917',
+              surface: '#FFFFFF',
+              canvas: '#FBFBF9',
+              border: '#EAE6DF',
+              borderMuted: '#F1EFEA',
+              muted: '#78716C',
+              emeraldSoft: '#ECFDF5',
+              emeraldText: '#065F46',
+              emeraldBorder: '#A7F3D0'
             }
           },
           fontFamily: {
-            serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
-            cinzel: ['"Cinzel"', 'serif'],
-            sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            serif: ['Playfair Display', 'Didot', 'Georgia', 'serif'],
+            sans: ['Plus Jakarta Sans', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Menlo', 'monospace']
           },
           boxShadow: {
-            'atelier': '0 20px 45px -12px rgba(20, 19, 18, 0.06), 0 1px 3px 0 rgba(201, 154, 78, 0.08)',
-            'floating': '0 30px 60px -15px rgba(20, 19, 18, 0.12), 0 0 0 1px rgba(201, 154, 78, 0.2)',
-            'subtle': '0 4px 20px -2px rgba(20, 19, 18, 0.04)',
-            'goldGlow': '0 0 35px -5px rgba(201, 154, 78, 0.3)'
+            'luxury': '0 4px 20px -2px rgba(28, 25, 23, 0.04), 0 1px 3px 0 rgba(28, 25, 23, 0.02)',
+            'subtle': '0 1px 2px 0 rgba(28, 25, 23, 0.03)'
           }
         }
       }
     }
   </script>
-  <style>
-    /* Custom refined range slider */
-    input[type=range].luxury-slider {
-      -webkit-appearance: none;
-      width: 100%;
-      background: transparent;
+<!-- Google Fonts for High-End Jewelry Aesthetic -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&amp;family=Plus+Jakarta+Sans:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<style data-purpose="custom-scrollbars-and-refinements">
+    /* Subtle luxury scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
     }
-
-    input[type=range].luxury-slider:focus {
-      outline: none;
+    ::-webkit-scrollbar-track {
+      background: #F8F7F4;
     }
-
-    input[type=range].luxury-slider::-webkit-slider-runnable-track {
-      width: 100%;
-      height: 4px;
-      cursor: pointer;
-      background: linear-gradient(90deg, #C99A4E var(--track-fill, 71%), #E4DDD2 var(--track-fill, 71%));
+    ::-webkit-scrollbar-thumb {
+      background: #DCD6CC;
       border-radius: 9999px;
-      transition: background 0.1s ease;
     }
-
-    input[type=range].luxury-slider::-webkit-slider-thumb {
-      height: 28px;
-      width: 28px;
-      border-radius: 50%;
-      background: #141312;
-      border: 2px solid #C99A4E;
-      box-shadow: 0 4px 14px rgba(20, 19, 18, 0.3), inset 0 0 0 3px #FAF7F2;
-      cursor: grab;
-      -webkit-appearance: none;
-      margin-top: -12px;
-      transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s ease;
-    }
-
-    input[type=range].luxury-slider::-webkit-slider-thumb:active {
-      cursor: grabbing;
-      transform: scale(1.18);
-      box-shadow: 0 0 0 8px rgba(201, 154, 78, 0.2), 0 6px 18px rgba(20, 19, 18, 0.4);
-    }
-
-    /* Fine gold metallic text gradient */
-    .gold-gradient-text {
-      background: linear-gradient(135deg, #8A6421 0%, #C99A4E 45%, #E5BF77 70%, #9F742C 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    /* Fine hairline divider */
-    .hairline-b {
-      border-bottom: 1px solid rgba(201, 154, 78, 0.22);
-    }
-
-    .hairline-gold {
-      border-color: rgba(201, 154, 78, 0.28);
-    }
-
-    /* Subtle shimmer ribbon */
-    .shimmer-badge {
-      background: linear-gradient(90deg, rgba(201, 154, 78, 0.12) 0%, rgba(201, 154, 78, 0.28) 50%, rgba(201, 154, 78, 0.12) 100%);
-      background-size: 200% 100%;
-      animation: shimmerMove 4s infinite linear;
-    }
-
-    @keyframes shimmerMove {
-      0% {
-        background-position: -200% 0;
-      }
-
-      100% {
-        background-position: 200% 0;
-      }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #C5A059;
     }
   </style>
 </head>
-
-<body
-  class="bg-atelier-canvas text-atelier-ebony font-sans antialiased min-h-screen flex flex-col selection:bg-atelier-gold selection:text-white">
-  <!-- ========================================================================= -->
-  <!-- TOP BRAND MARQUEE & LIVE GOLD COMMODITY TICKER -->
-  <!-- ========================================================================= -->
-  <aside
-    class="bg-atelier-ebony text-[#E6DFD5] border-b border-[#2B2724] text-[11px] tracking-widest uppercase font-medium">
-    <div
-      class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex flex-col sm:flex-row items-center justify-between gap-2">
-      <!-- Live Certified Gold Rates -->
-      <div class="flex items-center space-x-4 divide-x divide-white/10">
-        <div class="flex items-center space-x-2">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-          <span class="text-stone-400 font-light">IBJA Live Rate:</span>
-          <span class="text-white font-semibold tracking-wider">24K 999 GOLD <span
-              class="text-atelier-gold">₹7,850/g</span></span>
-          <span class="text-emerald-400 text-[10px] font-bold">▲ +0.42%</span>
-        </div>
-        <div class="hidden md:flex pl-4 items-center space-x-2 text-stone-400">
-          <span class="">22K BIS Hallmarked: <strong class="text-stone-200 font-medium">₹7,195/g</strong></span>
-        </div>
-      </div>
-      <!-- Trust Footprint Credentials -->
-      <div class="flex items-center space-x-5 text-stone-300 text-[10px] sm:text-[11px]">
-        <div class="flex items-center space-x-1.5">
-          <span class="material-symbols-outlined text-[14px] text-atelier-gold">verified</span>
-          <span class="">100% Insured Brinks® Custody</span>
-        </div>
-        <span class="text-stone-600 hidden sm:inline">•</span>
-        <div class="flex items-center space-x-1.5">
-          <span class="material-symbols-outlined text-[14px] text-atelier-gold">support_agent</span>
-          <span class="">VIP Atelier Concierge: <a
-              class="text-white hover:text-atelier-gold font-semibold tracking-normal underline underline-offset-2"
-              href="tel:18002008888">1800 200 8888</a></span>
-        </div>
-      </div>
-    </div>
-  </aside>
-  <!-- ========================================================================= -->
-  <!-- HAUTE JOAILLERIE HEADER / NAVIGATION -->
-  <!-- ========================================================================= -->
-  <header class="bg-white/80 backdrop-blur-xl border-b border-atelier-border/80 sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-24 flex items-center justify-between">
-      <!-- Atelier Brand Identity -->
-      <a class="flex items-center space-x-3.5 group" href="#">
-        <div
-          class="w-11 h-11 rounded-full bg-gradient-to-tr from-atelier-ebony to-atelier-charcoal flex items-center justify-center border border-atelier-gold/70 text-atelier-gold shadow-md group-hover:scale-105 transition-transform duration-300">
-          <span class="font-cinzel text-lg font-semibold tracking-tight text-[#E8C782]">A</span>
-        </div>
-        <div>
-          <span
-            class="font-cinzel text-2xl tracking-[0.24em] font-semibold text-atelier-ebony block leading-none">AURUM</span>
-          <span class="text-[9px] uppercase tracking-[0.4em] text-atelier-muted font-medium block mt-1">Haute Joaillerie
-            • Atelier Privé</span>
-        </div>
-      </a>
-      <!-- Quick Trust Badges & Boutique Locator -->
-      <div class="flex items-center space-x-3 sm:space-x-6">
-        <div
-          class="hidden lg:flex items-center space-x-3 px-3.5 py-1.5 rounded-full bg-atelier-sand/70 border border-atelier-border text-xs text-atelier-ebony">
-          <span class="w-2 h-2 rounded-full bg-atelier-emerald"></span>
-          <span class="font-medium">10-Month Sovereign Savings Scheme</span>
-          <span
-            class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-atelier-gold/20 text-atelier-goldDark">Zero
-            Wastage</span>
-        </div>
-        <button
-          class="hidden sm:inline-flex items-center space-x-1.5 text-xs font-semibold tracking-wider uppercase text-atelier-ebony hover:text-atelier-goldDark transition-colors px-3 py-2"
-          type="button">
-          <span class="material-symbols-outlined text-[17px] text-atelier-gold">storefront</span>
-          <span class="">Boutiques</span>
-        </button>
-        <button
-          class="inline-flex items-center space-x-2 text-xs font-semibold tracking-wider uppercase bg-atelier-ebony text-white hover:bg-atelier-charcoal px-4 py-2.5 rounded-full border border-atelier-gold/40 shadow-sm transition-all duration-200"
-          type="button">
-          <span class="material-symbols-outlined text-[15px] text-atelier-gold">lock</span>
-          <span class="">Member Access</span>
-        </button>
-      </div>
-    </div>
-  </header>
-  <!-- ========================================================================= -->
-  <!-- EDITORIAL HERO & PROGRAM MANIFESTO -->
-  <!-- ========================================================================= -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-14 w-full flex-1">
-    <div class="text-center max-w-3xl mx-auto mb-12 lg:mb-16">
-      <div
-        class="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full border border-atelier-borderGold bg-white/70 shadow-sm mb-4">
-        <span class="w-1.5 h-1.5 rounded-full bg-atelier-gold animate-pulse"></span>
-        <span class="font-cinzel text-[10px] tracking-[0.25em] font-semibold text-atelier-goldDark uppercase">Patron
-          Investment Scheme</span>
-      </div>
-      <h1
-        class="font-serif text-3xl sm:text-5xl lg:text-6xl font-light text-atelier-ebony tracking-tight leading-[1.12]">
-        Acquire Exceptional Jewellery <br class="hidden sm:inline"><span class="italic font-normal">With Our Privileged
-          10-Month Plan</span>
-      </h1>
-      <p class="text-atelier-muted text-sm sm:text-base mt-4 max-w-2xl mx-auto font-light leading-relaxed">
-        Commit for 9 months and Aurum finances your <strong class="text-atelier-ebony font-semibold">10th month
-          completely complimentary</strong>. Enjoy 100% gold rate hedging, certified BIS 916 hallmarked purity, and
-        immediate welcome jewellery credits.
-      </p>
-    </div>
-    <!-- ========================================================================= -->
-    <!-- ELEVATED SPLIT CANVAS: INTERACTIVE CALCULATOR & LIVE MATURITY HUB -->
-    <!-- ========================================================================= -->
-    <div class="">
-      <div class="grid grid-cols-1 lg:grid-cols-12 lg:divide-y-0 divide-atelier-border">
-        <!-- LEFT REGION: BESPOKE PREMIUM CONTROLS & GIFT MILESTONES (7 Cols) -->
-        <section aria-label="Contribution Selector"
-          class="lg:col-span-7 p-6 sm:p-8 lg:p-10 space-y-8 flex flex-col justify-between">
-          <!-- Section Title & Meta -->
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 hairline-b pb-6">
-            <div>
-              <span class="text-[11px] font-cinzel font-semibold text-atelier-gold uppercase tracking-[0.25em]">Step 01
-                • Custom Allocation</span>
-              <h2 class="font-serif text-2xl sm:text-3xl text-atelier-ebony font-normal mt-0.5">Select Your Monthly
-                Deposit</h2>
-            </div>
-            <div
-              class="self-start sm:self-auto flex items-center space-x-2 text-xs bg-atelier-sand/80 px-3 py-1.5 rounded-full border border-atelier-border font-medium text-stone-700">
-              <span class="w-2 h-2 rounded-full bg-atelier-emerald"></span>
-              <span class="">Fixed 10-Month Tenure</span>
-            </div>
-          </div>
-          <!-- Tactile Luxury Display Module -->
-          <div
-            class="relative bg-gradient-to-b from-[#FAF8F5] to-[#F5F0E8] border border-atelier-borderGold rounded-2xl p-7 text-center shadow-inner overflow-hidden">
-            <div
-              class="absolute -top-10 left-1/2 -translate-x-1/2 w-64 h-32 bg-atelier-gold/15 rounded-full blur-3xl pointer-events-none">
-            </div>
-            <span
-              class="font-cinzel text-[10px] sm:text-[11px] tracking-[0.3em] font-semibold text-atelier-muted uppercase block">
-              Configured Monthly Allocation
+<body class="min-h-full font-sans antialiased bg-[#FBFBF9] text-[#1C1917] selection:bg-brand-goldLight selection:text-[#1C1917]">
+<!-- BEGIN: TopGlobalBanner -->
+<aside class="bg-[#1C1917] text-[#EDE8DF] text-[11px] font-medium tracking-wider uppercase py-1.5 px-6 border-b border-white/10" data-purpose="gold-market-ticker">
+<div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+<div class="flex items-center space-x-6">
+<span class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+<span class="text-white/60">Live 24K 999 Gold:</span>
+<span class="font-mono text-white font-semibold">₹7,850/g</span>
+<span class="text-emerald-400 text-[10px]">▲ +0.42%</span>
+</span>
+<span class="hidden md:inline-block text-white/30">|</span>
+<span class="hidden md:inline-flex items-center gap-1.5">
+<span class="text-white/60">22K BIS Hallmark:</span>
+<span class="font-mono text-white font-semibold">₹7,195/g</span>
+</span>
+<span class="hidden lg:inline-block text-white/30">|</span>
+<span class="hidden lg:inline-flex items-center gap-1 text-white/70">
+<svg class="w-3.5 h-3.5 text-brand-gold" fill="currentColor" viewbox="0 0 20 20"><path clip-rule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.649 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.35-.166-2.001A11.954 11.954 0 0110 1.944zM11 14a1 1 0 11-2 0 1 1 0 012 0zm0-7a1 1 0 10-2 0v3a1 1 0 102 0V7z" fill-rule="evenodd"></path></svg>
+          100% Insured Custody Vaults
+        </span>
+</div>
+<div class="flex items-center space-x-4 text-white/70">
+<span class="hidden sm:inline">VIP Atelier Concierge: <strong class="text-white font-semibold">1800 200 8888</strong></span>
+<span class="px-2 py-0.5 rounded bg-white/10 text-white text-[10px] tracking-normal font-sans">Store Admin v2.4</span>
+</div>
+</div>
+</aside>
+<!-- END: TopGlobalBanner -->
+<!-- BEGIN: MainHeader -->
+<header class="sticky top-0 z-30 bg-[#FFFFFF]/90 backdrop-blur-md border-b border-brand-border" data-purpose="merchant-top-navigation">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+<!-- Breadcrumb & Workspace Title -->
+<div class="flex items-center space-x-3">
+<a class="p-1.5 text-stone-400 hover:text-stone-800 rounded-lg hover:bg-stone-100 transition-colors" href="#" title="All Apps &amp; Modules">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"></path>
+</svg>
+</a>
+<svg class="w-3.5 h-3.5 text-stone-300" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<div class="flex items-center space-x-2">
+<span class="font-serif italic font-semibold text-lg text-[#1C1917] tracking-tight">Aurum</span>
+<span class="text-stone-300 text-sm">/</span>
+<h1 class="text-sm font-semibold text-[#1C1917] tracking-tight flex items-center gap-2">
+            Savings Scheme
+            <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0]">
+              Active Storefront App
             </span>
-            <div class="flex items-baseline justify-center mt-2 space-x-1.5">
-              <span class="font-serif text-3xl sm:text-4xl text-atelier-goldDark font-light select-none">₹</span>
-              <span class="font-serif text-5xl sm:text-6xl font-normal text-atelier-ebony tracking-tight"
-                id="monthly-display">14,500</span>
-            </div>
-            <p class="text-xs text-atelier-muted mt-2 font-medium tracking-wide">
-              9 installments paid by patron • 1 installment honored by Aurum
-            </p>
+</h1>
+</div>
+</div>
+<!-- Header Action Controls -->
+<div class="flex items-center space-x-3">
+<!-- Preview on Storefront button -->
+<a class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-stone-700 bg-stone-50 hover:bg-stone-100 border border-brand-border rounded-md transition-all shadow-subtle" href="#" target="_blank">
+<svg class="w-3.5 h-3.5 text-stone-500" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
+</svg>
+          Preview Widget
+        </a>
+<!-- Primary Luxury Edit Scheme Button -->
+<button class="inline-flex items-center gap-2 px-4 py-1.5 text-xs font-medium tracking-wide text-white bg-[#1C1917] hover:bg-[#2C2724] border border-brand-gold/30 rounded-md transition-all shadow-sm group" type="button">
+<svg class="w-3.5 h-3.5 text-brand-gold group-hover:rotate-12 transition-transform duration-200" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+          Edit scheme
+        </button>
+<!-- More Actions Dropdown Toggle -->
+<button aria-label="More options" class="p-1.5 text-stone-500 hover:text-stone-800 border border-brand-border rounded-md bg-white hover:bg-stone-50 shadow-subtle transition-colors" type="button">
+<svg class="w-4 h-4" fill="currentColor" viewbox="0 0 20 20">
+<path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z"></path>
+</svg>
+</button>
+<!-- Merchant Avatar -->
+<div class="h-6 w-px bg-stone-200 mx-1 hidden sm:block"></div>
+<div class="flex items-center space-x-2 pl-1">
+<div class="w-8 h-8 rounded-full bg-[#1C1917] text-brand-gold flex items-center justify-center font-serif text-xs font-bold ring-2 ring-brand-gold/20 shadow-sm">
+            A
           </div>
-          <!-- Interactive Stepped Slider with Metallic Milestone Pins -->
-          <div class="space-y-4 pt-2">
-            <!-- Milestone Badge Overlay above track -->
-            <div class="relative w-full h-9 select-none">
-              <!-- Tier 1: ₹1,000 Milestone Pin (0%) -->
-
-              <!-- Tier 2: ₹4,000 Milestone Pin (approx 20%) -->
-
-              <!-- Tier 3: ₹5,000 Milestone Pin (Popular) -->
-
-              <!-- Tier 4: ₹14,500 Current Pin (71%) -->
-              <div class="absolute left-[71%] -translate-x-1/2 flex flex-col items-center cursor-pointer group"
-                onclick="setSliderAmount(14500)">
-                <span
-                  class="inline-flex items-center space-x-1 text-[10px] font-bold bg-atelier-emerald text-white rounded-full px-2 py-0.5 shadow-sm ring-4 ring-emerald-100 group-hover:scale-105 transition-all">
-                  <span class="">✨ ₹3,333 Diamond</span>
+</div>
+</div>
+</div>
+</header>
+<!-- END: MainHeader -->
+<!-- BEGIN: DashboardContainer -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" data-purpose="primary-content-workspace">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- BEGIN: LeftPrimaryColumn (8 Cols) -->
+<section class="lg:col-span-8 space-y-6" data-purpose="main-overview-and-data">
+<!-- BEGIN: OverviewCard -->
+<div class="bg-white rounded-xl border border-brand-border p-6 shadow-luxury" data-purpose="overview-kpis">
+<!-- Card Header & Live Badge -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between pb-5 border-b border-brand-borderMuted gap-3">
+<div>
+<h2 class="text-base font-semibold text-stone-900 tracking-tight">Overview</h2>
+<div class="mt-1 flex items-center space-x-2.5">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0]">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                  Live
                 </span>
-                <span class="text-[10px] font-mono font-bold text-atelier-emerald mt-1">₹14.5k</span>
-              </div>
-              <!-- Tier 5: Max ₹20,000 (100%) -->
-              <div class="absolute right-0 translate-x-0 flex flex-col items-end cursor-pointer group"
-                onclick="setSliderAmount(20000)">
-                <span
-                  class="inline-flex items-center space-x-1 text-[10px] font-bold bg-stone-900 text-amber-300 rounded-full px-2 py-0.5 shadow-sm">
-                  <span class="">👑 Salon Privé</span>
+<p class="text-xs sm:text-sm text-stone-600">Your savings scheme calculator is live on the storefront.</p>
+</div>
+</div>
+<!-- Live date indicator -->
+<div class="text-xs text-stone-400 font-mono flex items-center gap-1 self-start sm:self-auto">
+<svg class="w-3.5 h-3.5 text-brand-gold" fill="currentColor" viewbox="0 0 20 20"><path clip-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" fill-rule="evenodd"></path></svg>
+              Updated 8 mins ago
+            </div>
+</div>
+<!-- 4 Stats Metric Cards Grid -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+<!-- Stat 1: Total Enquiries -->
+<div class="p-4 rounded-lg border border-brand-borderMuted bg-[#FBFBF9]/70 hover:bg-white hover:border-brand-gold/40 hover:shadow-subtle transition-all">
+<div class="flex items-center justify-between">
+<span class="text-xs font-medium text-stone-500">Total enquiries</span>
+<span class="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">+100%</span>
+</div>
+<div class="mt-2 text-2xl font-bold font-mono tracking-tight text-stone-900">5</div>
+<p class="mt-1 text-[11px] text-stone-400">All registered interest</p>
+</div>
+<!-- Stat 2: This Week -->
+<div class="p-4 rounded-lg border border-brand-borderMuted bg-[#FBFBF9]/70 hover:bg-white hover:border-brand-gold/40 hover:shadow-subtle transition-all">
+<div class="flex items-center justify-between">
+<span class="text-xs font-medium text-stone-500">This week</span>
+<span class="w-2 h-2 rounded-full bg-brand-gold"></span>
+</div>
+<div class="mt-2 text-2xl font-bold font-mono tracking-tight text-stone-900">5</div>
+<p class="mt-1 text-[11px] text-stone-400">New leads past 7 days</p>
+</div>
+<!-- Stat 3: Avg. Monthly Amount -->
+<div class="p-4 rounded-lg border border-brand-borderMuted bg-[#FBFBF9]/70 hover:bg-white hover:border-brand-gold/40 hover:shadow-subtle transition-all">
+<div class="flex items-center justify-between">
+<span class="text-xs font-medium text-stone-500">Avg. monthly amount</span>
+</div>
+<div class="mt-2 text-2xl font-bold font-mono tracking-tight text-stone-900">₹80,700</div>
+<p class="mt-1 text-[11px] text-stone-400">Per patron pledge</p>
+</div>
+<!-- Stat 4: Pipeline Value -->
+<div class="p-4 rounded-lg border border-brand-borderMuted bg-[#FBFBF9]/70 hover:bg-white hover:border-brand-gold/40 hover:shadow-subtle transition-all">
+<div class="flex items-center justify-between">
+<span class="text-xs font-medium text-stone-500">Pipeline value</span>
+<span class="text-[10px] text-brand-gold font-mono font-medium">10-Mo</span>
+</div>
+<div class="mt-2 text-2xl font-bold font-mono tracking-tight text-stone-900">₹38,71,500</div>
+<p class="mt-1 text-[11px] text-stone-400">Cumulative maturity</p>
+</div>
+</div>
+</div>
+<!-- END: OverviewCard -->
+<!-- BEGIN: SchemeConfigurationCard -->
+<div class="bg-white rounded-xl border border-brand-border p-6 shadow-luxury relative overflow-hidden" data-purpose="scheme-specifications">
+<!-- Subtle watermark corner logo accent -->
+<div class="absolute -right-6 -bottom-6 text-stone-50 pointer-events-none font-serif text-8xl select-none font-bold">
+            A
+          </div>
+<div class="flex items-center justify-between pb-4 border-b border-brand-borderMuted">
+<div>
+<h2 class="text-base font-semibold text-stone-900 tracking-tight">Scheme configuration</h2>
+<p class="text-xs text-stone-500 mt-0.5">Core rules active for visitor calculation &amp; enrollment</p>
+</div>
+<a class="text-xs font-medium text-brand-gold hover:text-brand-goldHover flex items-center gap-1 transition-colors" href="#">
+              Edit configuration
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</a>
+</div>
+<!-- Configuration Key-Value Matrix -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-y-5 gap-x-8 mt-5 text-sm">
+<!-- Plan Name -->
+<div class="space-y-1">
+<span class="text-xs font-medium text-stone-400 uppercase tracking-wider">Plan name</span>
+<div class="text-sm font-semibold text-stone-900 flex items-center gap-2">
+                demo
+                <span class="text-[11px] font-normal px-2 py-0.5 bg-stone-100 rounded text-stone-600 border border-stone-200">10-Month Sovereign</span>
+</div>
+</div>
+<!-- Monthly contribution range -->
+<div class="space-y-1">
+<span class="text-xs font-medium text-stone-400 uppercase tracking-wider">Monthly contribution range</span>
+<div class="text-sm font-semibold font-mono text-stone-900">
+                ₹5,000 – ₹1,20,000
+                <span class="text-xs text-stone-400 font-sans font-normal ml-1">(Flexible slider)</span>
+</div>
+</div>
+<!-- Duration -->
+<div class="space-y-1">
+<span class="text-xs font-medium text-stone-400 uppercase tracking-wider">Duration</span>
+<div class="text-sm font-medium text-stone-800 flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-brand-gold"></span>
+<span>9 paid months + 1 bonus (10 total)</span>
+</div>
+</div>
+<!-- Free gifts -->
+<div class="space-y-1">
+<span class="text-xs font-medium text-stone-400 uppercase tracking-wider">Free gifts</span>
+<div class="text-sm font-medium text-stone-800 flex items-center gap-2">
+<svg class="w-4 h-4 text-brand-gold flex-shrink-0" fill="currentColor" viewbox="0 0 20 20">
+<path clip-rule="evenodd" d="M5 5a3 3 0 015-2.236A3 3 0 0115 5h1a2 2 0 012 2v2a2 2 0 01-2 2h-1v5a2 2 0 01-2 2H7a2 2 0 01-2-2v-5H4a2 2 0 01-2-2V7a2 2 0 012-2h1zm4-1a1 1 0 00-1 1h2a1 1 0 00-1-1zm3 1a1 1 0 00-1-1 1 1 0 00-1 1h2zM7 11v6h2v-6H7zm4 0v6h2v-6h-2z" fill-rule="evenodd"></path>
+</svg>
+<span>abcd gift, new ring</span>
+<span class="text-[10px] text-stone-400 font-mono">(Diamond Voucher Tiers)</span>
+</div>
+</div>
+<!-- Early redemption -->
+<div class="space-y-1 md:col-span-2 pt-2 border-t border-brand-borderMuted">
+<span class="text-xs font-medium text-stone-400 uppercase tracking-wider">Early redemption</span>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+<svg class="w-3 h-3 text-emerald-600" fill="currentColor" viewbox="0 0 20 20"><path clip-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" fill-rule="evenodd"></path></svg>
+                  Enabled
                 </span>
-                <span class="text-[10px] font-mono font-medium text-atelier-muted mt-1">₹20k</span>
-              </div>
+<span class="text-xs text-stone-500">Patrons may redeem early with zero penalty starting after Month 6.</span>
+</div>
+</div>
+</div>
+</div>
+<!-- END: SchemeConfigurationCard -->
+<!-- BEGIN: RecentEnquiriesTableCard -->
+<div class="bg-white rounded-xl border border-brand-border shadow-luxury overflow-hidden" data-purpose="leads-enquiries-table">
+<!-- Card Header & Filters -->
+<div class="p-6 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-brand-borderMuted">
+<div>
+<h2 class="text-base font-semibold text-stone-900 tracking-tight">Recent enquiries</h2>
+<p class="text-xs text-stone-500 mt-0.5">Prospects who simulated or locked their jewelry plan</p>
+</div>
+<!-- Quick Filter & Export Tools -->
+<div class="flex items-center space-x-2">
+<div class="relative">
+<input class="w-44 text-xs pl-8 pr-2.5 py-1.5 border border-brand-border rounded-md bg-stone-50 focus:bg-white focus:ring-1 focus:ring-brand-gold focus:border-brand-gold text-stone-800 placeholder-stone-400 transition-all" placeholder="Search customer..." type="text"/>
+<svg class="w-3.5 h-3.5 text-stone-400 absolute left-2.5 top-2.5 pointer-events-none" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+<button class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-stone-600 hover:text-stone-900 bg-stone-50 hover:bg-stone-100 border border-brand-border rounded-md transition-colors" type="button">
+<svg class="w-3.5 h-3.5 text-stone-500" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                Export
+              </button>
+</div>
+</div>
+<!-- Table View Container -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse" id="enquiries-datatable">
+<thead>
+<tr class="border-b border-brand-border bg-[#FDFDFB] text-[11px] uppercase tracking-wider font-semibold text-stone-500">
+<th class="py-3 px-5" scope="col">Customer</th>
+<th class="py-3 px-5" scope="col">Contact</th>
+<th class="py-3 px-5 text-right" scope="col">Monthly amount</th>
+<th class="py-3 px-5 text-center" scope="col">Gift</th>
+<th class="py-3 px-5 text-right" scope="col">Received</th>
+<th class="py-3 px-4 text-center" scope="col"><span class="sr-only">Actions</span></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-brand-borderMuted text-xs font-normal">
+<!-- Row 1: Prince Rangholiya -->
+<tr class="hover:bg-[#FBFBF9]/80 transition-colors group">
+<td class="py-3.5 px-5 font-medium text-stone-900">
+<div class="flex items-center space-x-2.5">
+<div class="w-7 h-7 rounded-full bg-stone-100 text-stone-700 border border-stone-200 flex items-center justify-center font-serif text-[11px] font-semibold">
+                        PR
+                      </div>
+<span class="font-medium text-stone-900 group-hover:text-brand-goldHover transition-colors">Prince Rangholiya</span>
+</div>
+</td>
+<td class="py-3.5 px-5 font-mono text-stone-600">
+<a class="hover:text-brand-gold hover:underline inline-flex items-center gap-1" href="tel:+919574136554">
+                      +91 9574136554
+                    </a>
+</td>
+<td class="py-3.5 px-5 text-right font-mono font-semibold text-stone-900">
+                    ₹82,000
+                  </td>
+<td class="py-3.5 px-5 text-center">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0]">
+                      Eligible
+                    </span>
+</td>
+<td class="py-3.5 px-5 text-right text-stone-500 font-sans">
+                    10 Sept
+                  </td>
+<td class="py-3.5 px-4 text-center">
+<button aria-label="Quick contact patron" class="text-stone-400 hover:text-brand-gold p-1" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</td>
+</tr>
+<!-- Row 2: Valabhai 333 (No Gift) -->
+<tr class="hover:bg-[#FBFBF9]/80 transition-colors group">
+<td class="py-3.5 px-5 font-medium text-stone-900">
+<div class="flex items-center space-x-2.5">
+<div class="w-7 h-7 rounded-full bg-stone-100 text-stone-700 border border-stone-200 flex items-center justify-center font-serif text-[11px] font-semibold">
+                        V
+                      </div>
+<span class="font-medium text-stone-900 group-hover:text-brand-goldHover transition-colors">Valabhai 333</span>
+</div>
+</td>
+<td class="py-3.5 px-5 font-mono text-stone-600">
+<a class="hover:text-brand-gold hover:underline inline-flex items-center gap-1" href="tel:+163528745513">
+                      +163528745513
+                    </a>
+</td>
+<td class="py-3.5 px-5 text-right font-mono font-semibold text-stone-900">
+                    ₹70,500
+                  </td>
+<td class="py-3.5 px-5 text-center">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-stone-100 text-stone-600 border border-stone-200">
+                      No gift
+                    </span>
+</td>
+<td class="py-3.5 px-5 text-right text-stone-500 font-sans">
+                    10 Sept
+                  </td>
+<td class="py-3.5 px-4 text-center">
+<button aria-label="Quick contact patron" class="text-stone-400 hover:text-brand-gold p-1" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</td>
+</tr>
+<!-- Row 3: Valabhai 333 (Eligible) -->
+<tr class="hover:bg-[#FBFBF9]/80 transition-colors group">
+<td class="py-3.5 px-5 font-medium text-stone-900">
+<div class="flex items-center space-x-2.5">
+<div class="w-7 h-7 rounded-full bg-stone-100 text-stone-700 border border-stone-200 flex items-center justify-center font-serif text-[11px] font-semibold">
+                        V
+                      </div>
+<span class="font-medium text-stone-900 group-hover:text-brand-goldHover transition-colors">Valabhai 333</span>
+</div>
+</td>
+<td class="py-3.5 px-5 font-mono text-stone-600">
+<a class="hover:text-brand-gold hover:underline inline-flex items-center gap-1" href="tel:+163528745513">
+                      +163528745513
+                    </a>
+</td>
+<td class="py-3.5 px-5 text-right font-mono font-semibold text-stone-900">
+                    ₹91,000
+                  </td>
+<td class="py-3.5 px-5 text-center">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0]">
+                      Eligible
+                    </span>
+</td>
+<td class="py-3.5 px-5 text-right text-stone-500 font-sans">
+                    10 Sept
+                  </td>
+<td class="py-3.5 px-4 text-center">
+<button aria-label="Quick contact patron" class="text-stone-400 hover:text-brand-gold p-1" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</td>
+</tr>
+<!-- Row 4: aswdeaswde -->
+<tr class="hover:bg-[#FBFBF9]/80 transition-colors group">
+<td class="py-3.5 px-5 font-medium text-stone-900">
+<div class="flex items-center space-x-2.5">
+<div class="w-7 h-7 rounded-full bg-stone-100 text-stone-700 border border-stone-200 flex items-center justify-center font-serif text-[11px] font-semibold">
+                        A
+                      </div>
+<span class="font-medium text-stone-900 group-hover:text-brand-goldHover transition-colors">aswdeaswde</span>
+</div>
+</td>
+<td class="py-3.5 px-5 font-mono text-stone-600">
+<a class="hover:text-brand-gold hover:underline inline-flex items-center gap-1" href="tel:+163528745513">
+                      +163528745513
+                    </a>
+</td>
+<td class="py-3.5 px-5 text-right font-mono font-semibold text-stone-900">
+                    ₹80,000
+                  </td>
+<td class="py-3.5 px-5 text-center">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0]">
+                      Eligible
+                    </span>
+</td>
+<td class="py-3.5 px-5 text-right text-stone-500 font-sans">
+                    10 Sept
+                  </td>
+<td class="py-3.5 px-4 text-center">
+<button aria-label="Quick contact patron" class="text-stone-400 hover:text-brand-gold p-1" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</td>
+</tr>
+<!-- Row 5: vishal -->
+<tr class="hover:bg-[#FBFBF9]/80 transition-colors group">
+<td class="py-3.5 px-5 font-medium text-stone-900">
+<div class="flex items-center space-x-2.5">
+<div class="w-7 h-7 rounded-full bg-stone-100 text-stone-700 border border-stone-200 flex items-center justify-center font-serif text-[11px] font-semibold">
+                        V
+                      </div>
+<span class="font-medium text-stone-900 group-hover:text-brand-goldHover transition-colors">vishal</span>
+</div>
+</td>
+<td class="py-3.5 px-5 font-mono text-stone-600">
+<a class="hover:text-brand-gold hover:underline inline-flex items-center gap-1" href="tel:+9163528745513">
+                      +9163528745513
+                    </a>
+</td>
+<td class="py-3.5 px-5 text-right font-mono font-semibold text-stone-900">
+                    ₹80,000
+                  </td>
+<td class="py-3.5 px-5 text-center">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0]">
+                      Eligible
+                    </span>
+</td>
+<td class="py-3.5 px-5 text-right text-stone-500 font-sans">
+                    10 Sept
+                  </td>
+<td class="py-3.5 px-4 text-center">
+<button aria-label="Quick contact patron" class="text-stone-400 hover:text-brand-gold p-1" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Bottom Footer Navigation for Table -->
+<div class="p-4 bg-[#FDFDFB] border-t border-brand-border flex items-center justify-between">
+<button class="inline-flex items-center gap-2 px-3.5 py-1.5 text-xs font-semibold text-stone-800 bg-white hover:bg-stone-50 border border-brand-border rounded-md shadow-subtle hover:border-stone-400 transition-all" type="button">
+              View all 5 enquiries
+              <svg class="w-3.5 h-3.5 text-stone-500" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+<span class="text-xs text-stone-400">Showing 5 of 5 entries</span>
+</div>
+</div>
+<!-- END: RecentEnquiriesTableCard -->
+</section>
+<!-- END: LeftPrimaryColumn -->
+<!-- BEGIN: RightSidebarColumn (4 Cols) -->
+<aside class="lg:col-span-4 space-y-6" data-purpose="dashboard-sidebar-panels">
+<!-- BEGIN: QuickLinksCard -->
+<div class="bg-white rounded-xl border border-brand-border p-6 shadow-luxury" data-purpose="quick-navigation">
+<div class="flex items-center justify-between pb-3 border-b border-brand-borderMuted">
+<h2 class="text-sm font-semibold text-stone-900 tracking-tight flex items-center gap-2">
+<svg class="w-4 h-4 text-brand-gold" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+              Quick links
+            </h2>
+</div>
+<ul class="mt-4 space-y-2.5 text-xs font-medium">
+<li>
+<a class="group flex items-center justify-between p-2.5 rounded-lg border border-transparent hover:border-brand-border hover:bg-stone-50 transition-all text-stone-700 hover:text-stone-950" href="#">
+<div class="flex items-center space-x-2.5">
+<span class="w-2 h-2 rounded-full bg-brand-gold group-hover:scale-125 transition-transform"></span>
+<span>Scheme settings</span>
+</div>
+<svg class="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-1 group-hover:text-stone-800 transition-all" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</a>
+</li>
+<li>
+<a class="group flex items-center justify-between p-2.5 rounded-lg border border-transparent hover:border-brand-border hover:bg-stone-50 transition-all text-stone-700 hover:text-stone-950" href="#">
+<div class="flex items-center space-x-2.5">
+<span class="w-2 h-2 rounded-full bg-brand-gold group-hover:scale-125 transition-transform"></span>
+<span>Customer enquiries</span>
+</div>
+<div class="flex items-center space-x-2">
+<span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-stone-100 text-stone-600 font-semibold">5</span>
+<svg class="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-1 group-hover:text-stone-800 transition-all" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+</a>
+</li>
+<li>
+<a class="group flex items-center justify-between p-2.5 rounded-lg border border-transparent hover:border-brand-border hover:bg-stone-50 transition-all text-stone-700 hover:text-stone-950" href="#">
+<div class="flex items-center space-x-2.5">
+<span class="w-2 h-2 rounded-full bg-stone-300 group-hover:bg-brand-gold transition-colors"></span>
+<span>Analytics &amp; Hedging Reports</span>
+</div>
+<svg class="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-1 group-hover:text-stone-800 transition-all" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</a>
+</li>
+<li>
+<a class="group flex items-center justify-between p-2.5 rounded-lg border border-transparent hover:border-brand-border hover:bg-stone-50 transition-all text-stone-700 hover:text-stone-950" href="#">
+<div class="flex items-center space-x-2.5">
+<span class="w-2 h-2 rounded-full bg-stone-300 group-hover:bg-brand-gold transition-colors"></span>
+<span>Gold Hedging &amp; Rate Lock Rules</span>
+</div>
+<svg class="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-1 group-hover:text-stone-800 transition-all" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</a>
+</li>
+</ul>
+</div>
+<!-- END: QuickLinksCard -->
+<!-- BEGIN: StorefrontPlacementCard -->
+<div class="bg-gradient-to-br from-white to-[#FDFBF7] rounded-xl border border-brand-border p-6 shadow-luxury relative overflow-hidden" data-purpose="theme-app-block-guidance">
+<!-- Ambient Gold Accent Bar -->
+<div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-gold/80 via-amber-300 to-brand-gold"></div>
+<div class="flex items-center justify-between pb-3">
+<h2 class="text-sm font-semibold text-stone-900 tracking-tight flex items-center gap-2">
+<svg class="w-4 h-4 text-brand-gold" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
+</svg>
+              Storefront placement
+            </h2>
+<span class="text-[10px] font-mono uppercase tracking-wider text-brand-gold font-bold">App Block</span>
+</div>
+<p class="text-xs text-stone-600 leading-relaxed mt-2">
+            Add the <strong class="text-stone-900 font-semibold">Savings Scheme Widget</strong> block to any page from your theme editor's App blocks section. It works on any page, not just product pages.
+          </p>
+<!-- Interactive Code Snippet / Block Identifier Box -->
+<div class="mt-4 p-3 rounded-lg bg-[#1C1917] text-stone-300 text-xs font-mono space-y-2">
+<div class="flex items-center justify-between text-[11px] text-stone-400 pb-1.5 border-b border-white/10 font-sans">
+<span>Block Selector</span>
+<button class="text-brand-gold hover:text-amber-300 transition-colors" onclick="navigator.clipboard?.writeText('aurum_savings_calculator'); this.innerText='Copied!';" type="button">
+                Copy Block ID
+              </button>
+</div>
+<div class="text-emerald-400 font-mono text-[11px]">
+              aurum_savings_calculator.liquid
             </div>
-            <!-- Slider Track -->
-            <div class="relative flex items-center pt-2">
-              <input aria-label="Adjust your monthly savings deposit" class="luxury-slider" id="premium-slider"
-                max="20000" min="1000" step="500" type="range" value="14500" style="--track-fill: 71.05263157894737%;">
-            </div>
-            <!-- Track Footer Limits -->
-            <div class="flex justify-between items-center text-[11px] font-medium text-atelier-muted pt-1">
-              <span class="">Min. Deposit: <strong class="text-atelier-ebony">₹1,000/mo</strong></span>
-
-              <span class="">Atelier Cap: <strong class="text-atelier-ebony">₹20,000/mo</strong></span>
-            </div>
-          </div>
-          <!-- Quick Select Minimalist Gold-Bordered Pill Presets -->
-          <div class="space-y-3 pt-2">
-            <div class="flex items-center justify-between">
-              <span class="font-cinzel text-[10px] tracking-[0.2em] font-semibold text-atelier-muted uppercase">Curated
-                Portfolios</span>
-              <span class="text-[11px] text-atelier-muted">Tap to auto-configure</span>
-            </div>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3"><button
-                class="preset-btn py-3 px-3 rounded-xl border border-atelier-border text-sm font-semibold text-atelier-ebony hover:border-atelier-gold hover:bg-atelier-sand/50 transition-all text-center flex items-center justify-center"
-                data-val="1000" type="button">₹1,000</button><button
-                class="preset-btn py-3 px-3 rounded-xl border border-atelier-border text-sm font-semibold text-atelier-ebony hover:border-atelier-gold hover:bg-atelier-sand/50 transition-all text-center flex items-center justify-center"
-                data-val="3000" type="button">₹3,000</button><button
-                class="preset-btn py-3 px-3 rounded-xl border border-atelier-border text-sm font-semibold text-atelier-ebony hover:border-atelier-gold hover:bg-atelier-sand/50 transition-all text-center flex items-center justify-center"
-                data-val="5000" type="button">₹5,000</button><button
-                class="preset-btn py-3 px-3 rounded-xl border-2 border-atelier-ebony bg-atelier-ebony text-white text-sm font-semibold shadow-md transition-all text-center flex items-center justify-center"
-                data-val="14500" type="button">₹14,500</button></div>
-          </div>
-          <!-- Unlocked Milestone Perks Showcase -->
-          <div class="space-y-3 pt-2">
-            <span
-              class="font-cinzel text-[10px] tracking-[0.2em] font-semibold text-atelier-muted uppercase block">Guaranteed
-              Tier Privileges</span>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-              <!-- Privilege Card 1: Gold Voucher -->
-              <div
-                class="p-4 rounded-xl border border-atelier-border bg-stone-50/70 transition-all flex items-start space-x-3.5"
-                id="card-gold-voucher">
-                <div
-                  class="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0 shadow-xs">
-                  <svg class="w-5 h-5 text-emerald-700" fill="none" stroke="currentColor" stroke-linecap="round"
-                    stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
-                    <path d="M20 12v10H4V12"></path>
-                    <path d="M2 7h20v5H2z"></path>
-                    <path d="M12 22V7"></path>
-                    <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
-                    <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
-                  </svg></div>
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center justify-between gap-1">
-                    <h4 class="text-xs font-bold text-atelier-ebony tracking-tight">Pure Gold Coin Voucher</h4>
-                    <span
-                      class="text-[10px] font-bold text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded border border-amber-200/80">₹2,000</span>
-                  </div>
-                  <p class="text-[11px] text-atelier-muted mt-1 leading-snug">Available on plans up to ₹4,000/mo.</p>
-
-                </div>
-              </div>
-              <!-- Privilege Card 2: Diamond Sparkle Perk -->
-              <div
-                class="p-4 rounded-xl border-2 border-atelier-emerald bg-emerald-50/50 relative overflow-hidden transition-all flex items-start space-x-3.5 shadow-sm min-h-[96px]"
-                id="card-diamond-voucher">
-                <div
-                  class="absolute -top-8 -right-8 w-20 h-20 bg-emerald-400/10 rounded-full blur-xl pointer-events-none">
-                </div>
-                <div
-                  class="w-10 h-10 rounded-full bg-atelier-emerald border border-emerald-500 flex items-center justify-center shrink-0 shadow-sm">
-                  <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-linecap="round"
-                    stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
-                    <path d="M20 12v10H4V12"></path>
-                    <path d="M2 7h20v5H2z"></path>
-                    <path d="M12 22V7"></path>
-                    <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
-                    <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
-                  </svg></div>
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center justify-between gap-1">
-                    <h4 class="text-xs font-bold text-emerald-950 tracking-tight">Diamond Atelier Voucher</h4>
-                    <span
-                      class="text-[10px] font-extrabold text-emerald-900 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">₹3,333</span>
-                  </div>
-                  <p class="text-[11px] text-emerald-900/80 mt-1 leading-snug">Unlocked instantly upon plan enrolment.
-                  </p>
-
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="space-y-4 pt-4 border-t border-atelier-border"><button
-              class="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-atelier-ebony via-stone-900 to-atelier-charcoal text-white font-cinzel font-semibold text-xs sm:text-sm tracking-[0.2em] uppercase shadow-floating hover:border-atelier-gold active:scale-[0.99] transition-all duration-200 flex items-center justify-center space-x-3 border border-atelier-gold/50 group"
-              type="button"><span class="">START MY GOLD PLAN</span><span
-                class="material-symbols-outlined text-[18px] text-atelier-gold group-hover:translate-x-1 transition-transform">arrow_forward</span></button>
-            <div class="space-y-2"><label
-                class="flex items-start space-x-2.5 cursor-pointer text-[11px] text-atelier-muted leading-relaxed select-none"><input
-                  checked=""
-                  class="mt-0.5 rounded border-atelier-border text-atelier-ebony focus:ring-atelier-gold w-3.5 h-3.5 cursor-pointer"
-                  type="checkbox"><span class="">I agree to the <a
-                    class="text-atelier-ebony underline font-medium hover:text-atelier-goldDark" href="#">Atelier
-                    Terms</a> and enroll with the <strong class="text-atelier-ebony">100% Gold Rate Protection
-                    Guarantee</strong>.</span></label>
-              <div class="flex items-center justify-center space-x-4 text-[10px] text-stone-500 pt-1"><span
-                  class="flex items-center space-x-1"><span
-                    class="material-symbols-outlined text-[12px] text-atelier-gold">lock</span><span class="">Instant
-                    256-Bit Bank Encryption</span></span><span class="">•</span><span
-                  class="flex items-center space-x-1"><span
-                    class="material-symbols-outlined text-[12px] text-atelier-emerald">check_circle</span><span
-                    class="">No Lock-in Fees</span></span></div>
-            </div>
-          </div>
-        </section>
-        <!-- RIGHT REGION: MATURITY JOURNEY VISUALIZER & FINANCIAL BREAKDOWN (5 Cols) -->
-        <section aria-label="Maturity Summary"
-          class="lg:col-span-5 p-6 sm:p-8 lg:p-10 flex flex-col justify-between space-y-6">
-          <div class="space-y-6"><!-- Header & Security Pill -->
-            <div class="flex items-center justify-between hairline-b pb-4">
-              <div><span
-                  class="text-[10px] font-cinzel font-semibold text-atelier-gold uppercase tracking-[0.25em]">Financial
-                  Statement</span>
-                <h3 class="font-serif text-2xl text-atelier-ebony mt-0.5">Maturity Projection</h3>
-              </div><span
-                class="inline-flex items-center space-x-1.5 text-[10px] font-bold text-atelier-emerald bg-atelier-emeraldLight px-3 py-1 rounded-full border border-atelier-emeraldBorder"><span
-                  class="material-symbols-outlined text-[12px]">verified_user</span><span class="">100% Capital
-                  Safe</span></span>
-            </div><!-- Visual Maturity Journey Progress Gauge -->
-            <div class="bg-atelier-sand/60 rounded-2xl p-4 border border-atelier-border space-y-3">
-              <div class="flex items-center justify-between text-xs"><span
-                  class="font-cinzel text-[10px] tracking-wider uppercase font-semibold text-atelier-muted">Savings
-                  Journey Flow</span><span class="text-[11px] font-medium text-stone-600">10-Month Cycle</span></div>
-              <div class="grid grid-cols-3 gap-2 text-center relative">
-                <div class="bg-white p-2.5 rounded-xl border border-atelier-border"><span
-                    class="text-[10px] text-atelier-muted uppercase block font-medium">9 Mo. Deposit</span><span
-                    class="text-xs font-bold text-atelier-ebony mt-1 block" id="gauge-deposit">₹1.30 L</span><span
-                    class="text-[9px] text-stone-400 font-normal">90% of Total</span></div>
-                <div
-                  class="absolute left-[33%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-5 h-5 bg-white rounded-full border border-atelier-border text-stone-400 text-xs font-normal flex items-center justify-center shadow-xs z-10">
-                  +</div>
-                <div class="bg-white p-2.5 rounded-xl border border-atelier-border"><span
-                    class="text-[10px] text-stone-600 uppercase block font-medium">10th Free Mo.</span><span
-                    class="text-xs font-bold text-atelier-ebony mt-1 block" id="gauge-bonus">₹14.5k</span><span
-                    class="text-[9px] text-stone-400 font-normal">100% Covered</span></div>
-                <div
-                  class="absolute left-[67%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-5 h-5 bg-white rounded-full border border-atelier-border text-stone-400 text-xs font-normal flex items-center justify-center shadow-xs z-10">
-                  =</div>
-                <div class="bg-white p-2.5 rounded-xl border border-atelier-border"><span
-                    class="text-[10px] text-stone-600 uppercase block font-medium">Total Payout</span><span
-                    class="text-xs font-bold text-atelier-ebony mt-1 block" id="gauge-total">₹1.45 L</span><span
-                    class="text-[9px] text-stone-400 font-normal">+ Jewellery Vouchers</span></div>
-              </div>
-            </div><!-- Detailed Hairline Financial Breakdown -->
-            <div class="space-y-2.5 text-xs"><!-- Item 1: Patron's 9-Month Outlay -->
-              <div class="flex items-center justify-between py-1 hairline-b">
-                <div class="flex items-center space-x-2.5"><span class="w-2 h-2 rounded-full bg-atelier-ebony"></span>
-                  <div><span class="font-medium text-atelier-ebony">Your 9-Month Outlay</span><span
-                      class="block text-[10px] text-atelier-muted">9 equal monthly contributions</span></div>
-                </div><span class="font-semibold text-sm text-atelier-ebony" id="summary-contribution">₹1,30,500</span>
-              </div><!-- Item 2: Aurum's 10th Month Gift -->
-              <div class="flex items-center justify-between py-1 hairline-b">
-                <div class="flex items-center space-x-2.5"><span class="w-2 h-2 rounded-full bg-atelier-gold"></span>
-                  <div><span class="font-medium text-atelier-ebony">10th Month On The House</span><span
-                      class="block text-[10px] text-atelier-goldDark font-medium">Aurum deposits complete 10th
-                      installment</span></div>
-                </div><span class="font-bold text-sm text-atelier-goldDark" id="summary-bonus">+₹14,500</span>
-              </div><!-- Item 3: Complimentary Diamond Privilege Voucher -->
-              <div
-                class="bg-atelier-ebony rounded-xl p-3 text-white border border-atelier-gold/40 shadow-sm flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                  <div
-                    class="w-8 h-8 rounded-lg bg-white/10 border border-white/15 flex items-center justify-center text-sm shrink-0">
-                    💎</div>
-                  <div>
-                    <div class="flex items-center space-x-1.5"><span
-                        class="font-serif text-sm font-medium tracking-wide">Diamond Welcome Credit</span><span
-                        class="text-[8px] uppercase tracking-wider font-bold bg-atelier-gold text-stone-900 px-1.5 py-0.2 rounded">Gift</span>
-                    </div><span class="text-[10px] text-stone-300 block leading-tight mt-0.5">Complimentary atelier
-                      redemption voucher</span>
-                  </div>
-                </div>
-                <div class="text-right shrink-0"><span
-                    class="font-serif text-base font-bold text-amber-300">₹3,333</span><span
-                    class="block text-[9px] uppercase tracking-wider text-emerald-400 font-semibold">Included</span>
-                </div>
-              </div><!-- Total Purchasing Power Card -->
-              <div class="pt-1">
-                <div
-                  class="bg-gradient-to-br from-[#F4F9F6] to-[#EAF5EF] border border-emerald-500/60 rounded-2xl p-4 flex items-center justify-between shadow-sm">
-                  <div class="flex items-center space-x-2"><span
-                      class="w-2 h-2 rounded-full bg-atelier-emerald"></span><span
-                      class="font-cinzel text-xs font-bold text-emerald-950 uppercase tracking-wider">Total Purchasing
-                      Power</span></div>
-                  <div class="text-right"><span
-                      class="font-serif text-2xl sm:text-3xl font-bold text-emerald-950 tracking-tight block"
-                      id="summary-total">₹1,45,000</span></div>
-                </div>
-              </div><!-- Summary Footnote -->
-              <div class="flex items-center justify-between text-[11px] text-atelier-muted px-1"><span class="">Total
-                  Net Benefit to Patron:</span><span class="font-bold text-atelier-emerald"
-                  id="summary-net-benefit">₹17,833 (13.7% Effective ROI)</span></div>
-              <!-- Early Redemption Flexibility Cards (Enhanced) -->
-              <div class="pt-3 border-t border-atelier-border space-y-2.5">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center space-x-1.5"><span
-                      class="material-symbols-outlined text-[15px] text-atelier-muted">autorenew</span>
-                    <h4 class="font-serif text-sm font-medium text-atelier-ebony">Need Flexibility? Redeem Early After 6
-                      Months</h4>
-                  </div><span
-                    class="text-[9px] uppercase tracking-wider font-medium text-stone-600 bg-atelier-sand/70 px-2 py-0.5 rounded-full border border-atelier-border">Zero
-                    Penalty</span>
-                </div>
-                <div class="grid grid-cols-2 gap-2 text-xs">
-                  <div
-                    class="p-3 rounded-xl bg-white border border-atelier-border flex flex-col justify-between hover:border-atelier-gold transition-all">
-                    <div class="flex items-center justify-between text-[10px] text-atelier-muted"><span
-                        class="font-cinzel font-medium uppercase tracking-wider text-stone-600">7th Month</span><span
-                        class="material-symbols-outlined text-[13px] text-stone-400 hover:text-atelier-gold cursor-pointer"
-                        title="Deposit: ₹1,01,500 + Pro-rated bonus">info</span></div>
-                    <div class="mt-1.5 flex items-baseline justify-between"><span
-                        class="font-serif text-base font-medium text-atelier-ebony" id="m7-total">₹1,03,443</span><span
-                        class="text-[10px] font-mono text-stone-500" id="m7-bon">+₹1,943</span></div><span
-                      class="hidden" id="m7-dep">₹1,01,500</span>
-                  </div>
-                  <div
-                    class="p-3 rounded-xl bg-white border border-atelier-border flex flex-col justify-between hover:border-atelier-gold transition-all">
-                    <div class="flex items-center justify-between text-[10px] text-atelier-muted"><span
-                        class="font-cinzel font-medium uppercase tracking-wider text-stone-600">8th Month</span><span
-                        class="material-symbols-outlined text-[13px] text-stone-400 hover:text-atelier-gold cursor-pointer"
-                        title="Deposit: ₹1,16,000 + Pro-rated bonus">info</span></div>
-                    <div class="mt-1.5 flex items-baseline justify-between"><span
-                        class="font-serif text-base font-medium text-atelier-ebony" id="m8-total">₹1,21,307</span><span
-                        class="text-[10px] font-mono text-stone-500" id="m8-bon">+₹5,307</span></div><span
-                      class="hidden" id="m8-dep">₹1,16,000</span>
-                  </div>
-                  <div
-                    class="p-3 rounded-xl bg-white border border-atelier-border flex flex-col justify-between hover:border-atelier-gold transition-all">
-                    <div class="flex items-center justify-between text-[10px] text-atelier-muted"><span
-                        class="font-cinzel font-medium uppercase tracking-wider text-stone-600">9th Month</span><span
-                        class="material-symbols-outlined text-[13px] text-stone-400 hover:text-atelier-gold cursor-pointer"
-                        title="Deposit: ₹1,30,500 + Pro-rated bonus">info</span></div>
-                    <div class="mt-1.5 flex items-baseline justify-between"><span
-                        class="font-serif text-base font-medium text-atelier-ebony" id="m9-total">₹1,40,041</span><span
-                        class="text-[10px] font-mono text-stone-500" id="m9-bon">+₹9,541</span></div><span
-                      class="hidden" id="m9-dep">₹1,30,500</span>
-                  </div>
-                  <div
-                    class="p-3 rounded-xl bg-white border border-atelier-border flex flex-col justify-between hover:border-atelier-gold transition-all">
-                    <div class="flex items-center justify-between text-[10px] text-atelier-muted"><span
-                        class="font-cinzel font-medium uppercase tracking-wider text-stone-600">10th Month</span><span
-                        class="material-symbols-outlined text-[13px] text-stone-400 hover:text-atelier-gold cursor-pointer"
-                        title="Deposit: ₹1,30,500 + Full 10th month bonus">info</span></div>
-                    <div class="mt-1.5 flex items-baseline justify-between"><span
-                        class="font-serif text-base font-medium text-atelier-ebony" id="m10-total">₹1,45,000</span><span
-                        class="text-[10px] font-mono text-stone-500" id="m10-bon">+₹14,500</span></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- Conversion CTA & Legal Consent -->
-
-        </section>
-      </div>
-    </div>
-    <!-- ========================================================================= -->
-    <!-- EARLY LIQUIDITY & REDEMPTION TIMELINE (AFTER 6 MONTHS) -->
-    <!-- ========================================================================= -->
-    <!-- ========================================================================= -->
-    <!-- TRUST & ATELIER ASSURANCES STRIP -->
-    <!-- ========================================================================= -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-10">
-      <div class="flex items-start space-x-3.5 p-4 rounded-2xl bg-white/70 border border-atelier-border/70">
-        <span class="material-symbols-outlined text-atelier-gold text-2xl shrink-0 mt-0.5">verified</span>
-        <div>
-          <h4 class="text-xs font-bold text-atelier-ebony uppercase tracking-wider">BIS 916 Hallmark Standard</h4>
-          <p class="text-xs text-atelier-muted mt-1 leading-snug">Every gram purchased holds certified government
-            hallmarking with verifiable laser micro-inscription.</p>
-        </div>
-      </div>
-      <div class="flex items-start space-x-3.5 p-4 rounded-2xl bg-white/70 border border-atelier-border/70">
-        <span class="material-symbols-outlined text-atelier-gold text-2xl shrink-0 mt-0.5">shield_locked</span>
-        <div>
-          <h4 class="text-xs font-bold text-atelier-ebony uppercase tracking-wider">Gold Price Hedging</h4>
-          <p class="text-xs text-atelier-muted mt-1 leading-snug">Lock in each month's lowest rate or redeem at maturity
-            rate—whichever offers you higher gold weight.</p>
-        </div>
-      </div>
-      <div class="flex items-start space-x-3.5 p-4 rounded-2xl bg-white/70 border border-atelier-border/70">
-        <span class="material-symbols-outlined text-atelier-gold text-2xl shrink-0 mt-0.5">percent</span>
-        <div>
-          <h4 class="text-xs font-bold text-atelier-ebony uppercase tracking-wider">Zero Making Charges Benefit</h4>
-          <p class="text-xs text-atelier-muted mt-1 leading-snug">Special scheme exemption: Receive up to 100% waiver on
-            crafting and making charges at maturity.</p>
-        </div>
-      </div>
-    </div>
-  </main>
-  <!-- ========================================================================= -->
-  <!-- LUXURY FOOTER & COMPLIANCE -->
-  <!-- ========================================================================= -->
-  <footer class="mt-20 border-t border-atelier-border bg-white py-10">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex flex-col md:flex-row items-center justify-between text-xs text-atelier-muted gap-6">
-        <!-- Brand Copyright & Legal Nav -->
-        <div class="flex flex-wrap items-center justify-center md:justify-start gap-y-2 gap-x-6">
-          <span class="font-cinzel tracking-wider text-atelier-ebony font-semibold">AURUM ATELIER PRIVÉ</span>
-          <span class="">© 2025 Aurum Jewellers Ltd. All Rights Reserved.</span>
-          <a class="hover:text-atelier-ebony transition-colors underline-offset-2 hover:underline" href="#">Regulatory
-            Disclosures</a>
-          <a class="hover:text-atelier-ebony transition-colors underline-offset-2 hover:underline" href="#">Savings
-            Scheme Bye-Laws</a>
-          <a class="hover:text-atelier-ebony transition-colors underline-offset-2 hover:underline" href="#">Privacy
-            Policy</a>
-        </div>
-        <!-- Rating & Trust Marker -->
-        <div class="flex items-center space-x-4">
-          <div
-            class="flex items-center space-x-1.5 text-stone-700 bg-atelier-sand/60 px-3.5 py-1.5 rounded-full border border-atelier-border">
-            <span class="text-amber-500 font-bold">★ 4.95 / 5</span>
-            <span class="text-atelier-muted">Rated by 48,000+ Patrons</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </footer>
-  <!-- ========================================================================= -->
-  <!-- DYNAMIC CALCULATOR INTERACTION JAVASCRIPT -->
-  <!-- ========================================================================= -->
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const slider = document.getElementById('premium-slider');
-      const monthlyDisplay = document.getElementById('monthly-display');
-
-      // Breakdown outputs
-      const summaryContribution = document.getElementById('summary-contribution');
-      const summaryBonus = document.getElementById('summary-bonus');
-      const summaryTotal = document.getElementById('summary-total');
-      const summaryNetBenefit = document.getElementById('summary-net-benefit');
-
-      // Gauge outputs
-      const gaugeDeposit = document.getElementById('gauge-deposit');
-      const gaugeBonus = document.getElementById('gauge-bonus');
-      const gaugeTotal = document.getElementById('gauge-total');
-
-      // Milestone cards & statuses
-      const cardGoldVoucher = document.getElementById('card-gold-voucher');
-      const cardDiamondVoucher = document.getElementById('card-diamond-voucher');
-      const goldStatus = document.getElementById('gold-voucher-status');
-      const diamondStatus = document.getElementById('diamond-voucher-status');
-
-      // Early liquidity cards
-      const m7Total = document.getElementById('m7-total');
-      const m7Dep = document.getElementById('m7-dep');
-      const m7Bon = document.getElementById('m7-bon');
-
-      const m8Total = document.getElementById('m8-total');
-      const m8Dep = document.getElementById('m8-dep');
-      const m8Bon = document.getElementById('m8-bon');
-
-      const m9Total = document.getElementById('m9-total');
-      const m9Dep = document.getElementById('m9-dep');
-      const m9Bon = document.getElementById('m9-bon');
-
-      const m10Total = document.getElementById('m10-total');
-      const m10Bon = document.getElementById('m10-bon');
-
-      const presetBtns = document.querySelectorAll('.preset-btn');
-
-      const formatRupee = (num) => '₹' + Math.round(num).toLocaleString('en-IN');
-
-      const formatLakh = (num) => {
-        if (num >= 100000) {
-          return '₹' + (num / 100000).toFixed(2) + ' L';
-        }
-        return '₹' + (num / 1000).toFixed(1) + 'k';
-      };
-
-      function recalculate(monthlyVal) {
-        const monthly = parseInt(monthlyVal, 10);
-        const minVal = parseInt(slider.min, 10);
-        const maxVal = parseInt(slider.max, 10);
-
-        // Update CSS custom property for slider background fill
-        const percentage = ((monthly - minVal) / (maxVal - minVal)) * 100;
-        slider.style.setProperty('--track-fill', `${percentage}%`);
-
-        // Financial calculations
-        const totalContribution = monthly * 9;
-        const maturityBonus = monthly; // 10th month covered
-        const totalPurchasingPower = totalContribution + maturityBonus;
-
-        // Welcome gift valuation
-        const diamondGiftVal = 3333;
-        const totalBenefitAmt = maturityBonus + diamondGiftVal;
-        const effectiveRoi = ((totalBenefitAmt / totalContribution) * 100).toFixed(1);
-
-        // Update displays
-        monthlyDisplay.textContent = monthly.toLocaleString('en-IN');
-        summaryContribution.textContent = formatRupee(totalContribution);
-        summaryBonus.textContent = '+' + formatRupee(maturityBonus);
-        summaryTotal.textContent = formatRupee(totalPurchasingPower);
-        summaryNetBenefit.textContent = `${formatRupee(totalBenefitAmt)} (${effectiveRoi}% Effective ROI)`;
-
-        // Update Gauge Mini-cards
-        gaugeDeposit.textContent = formatLakh(totalContribution);
-        gaugeBonus.textContent = formatLakh(maturityBonus);
-        gaugeTotal.textContent = formatLakh(totalPurchasingPower);
-
-        // Early Liquidity Timeline calculations
-        // M7: 7 deposits + ~13.4% of monthly bonus
-        const m7Deposit = monthly * 7;
-        const m7Bonus = Math.round(monthly * 0.134);
-        m7Dep.textContent = formatRupee(m7Deposit);
-        m7Bon.textContent = '+' + formatRupee(m7Bonus);
-        m7Total.textContent = formatRupee(m7Deposit + m7Bonus);
-
-        // M8: 8 deposits + ~36.6% of monthly bonus
-        const m8Deposit = monthly * 8;
-        const m8Bonus = Math.round(monthly * 0.366);
-        m8Dep.textContent = formatRupee(m8Deposit);
-        m8Bon.textContent = '+' + formatRupee(m8Bonus);
-        m8Total.textContent = formatRupee(m8Deposit + m8Bonus);
-
-        // M9: 9 deposits + ~65.8% of monthly bonus
-        const m9Deposit = monthly * 9;
-        const m9Bonus = Math.round(monthly * 0.658);
-        m9Dep.textContent = formatRupee(m9Deposit);
-        m9Bon.textContent = '+' + formatRupee(m9Bonus);
-        m9Total.textContent = formatRupee(m9Deposit + m9Bonus);
-
-        // M10: 100% full 10th month bonus
-        m10Total.textContent = formatRupee(totalPurchasingPower);
-        m10Bon.textContent = '+' + formatRupee(maturityBonus);
-
-        // Milestone Gift Card State toggles
-        if (monthly <= 4000) {
-          // Gold Voucher Active
-          cardGoldVoucher.className = "p-4 rounded-xl border-2 border-amber-500 bg-amber-50/70 transition-all flex items-start space-x-3.5 shadow-sm";
-          goldStatus.innerHTML = '<span class="material-symbols-outlined text-[13px] text-amber-700">check_circle</span><span class="font-bold text-amber-800">Active &amp; Granted</span>';
-
-          // Diamond Voucher Inactive / Replaced
-          cardDiamondVoucher.className = "p-4 rounded-xl border border-atelier-border bg-stone-50/70 transition-all flex items-start space-x-3.5";
-          diamondStatus.innerHTML = '<span class="material-symbols-outlined text-[13px] text-stone-400">lock</span><span class="text-stone-500 font-medium">Unlocks at ₹5,000/mo+</span>';
-        } else {
-          // Diamond Voucher Active
-          cardGoldVoucher.className = "p-4 rounded-xl border border-atelier-border bg-stone-50/70 transition-all flex items-start space-x-3.5";
-          goldStatus.innerHTML = '<span class="material-symbols-outlined text-[13px] text-stone-400">arrow_upward</span><span class="text-stone-500 font-medium">Upgraded to Diamond Tier</span>';
-
-          cardDiamondVoucher.className = "p-4 rounded-xl border-2 border-atelier-emerald bg-emerald-50/50 relative overflow-hidden transition-all flex items-start space-x-3.5 shadow-sm";
-          diamondStatus.innerHTML = '<span class="material-symbols-outlined text-[14px]">check_circle</span><span>Unlocked &amp; Credited to Vault</span>';
-        }
-
-        // Preset buttons active class toggling
-        presetBtns.forEach(btn => {
-          const val = parseInt(btn.getAttribute('data-val'), 10);
-          if (val === monthly) {
-            btn.className = "preset-btn py-3 px-3 rounded-xl border-2 border-atelier-ebony bg-atelier-ebony text-white text-xs font-semibold shadow-md transition-all text-center";
-          } else {
-            btn.className = "preset-btn py-3 px-3 rounded-xl border border-atelier-border text-xs font-semibold text-atelier-ebony hover:border-atelier-gold hover:bg-atelier-sand/50 transition-all text-center";
-          }
-        });
-      }
-
-      slider.addEventListener('input', (e) => {
-        recalculate(e.target.value);
-      });
-
-      window.setSliderAmount = function (amount) {
-        slider.value = amount;
-        recalculate(amount);
-      };
-
-      presetBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const val = btn.getAttribute('data-val');
-          slider.value = val;
-          recalculate(val);
-        });
-      });
-
-      // Initial execution
-      recalculate(slider.value);
-    });
-  </script>
-
-
-
-
-</body>
-
-</html>
+</div>
+<!-- Action Button -->
+<div class="mt-5">
+<a class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-medium text-stone-900 bg-white hover:bg-stone-50 border border-brand-border rounded-lg shadow-sm hover:border-stone-400 transition-all group" href="#">
+<svg class="w-3.5 h-3.5 text-brand-gold group-hover:rotate-45 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+              Open Theme Editor
+            </a>
+</div>
+</div>
+<!-- END: StorefrontPlacementCard -->
+<!-- BEGIN: TrustGuaranteesCard -->
+<div class="p-5 rounded-xl border border-dashed border-stone-300 bg-[#F7F6F2] space-y-3" data-purpose="merchant-compliance-notice">
+<h3 class="text-xs font-semibold uppercase tracking-wider text-stone-500 flex items-center gap-1.5">
+<svg class="w-3.5 h-3.5 text-brand-gold" fill="currentColor" viewbox="0 0 20 20"><path clip-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" fill-rule="evenodd"></path></svg>
+            Compliance &amp; Gold Standard Active
+          </h3>
+<p class="text-[11px] text-stone-500 leading-normal">
+            Calculations strictly align with BIS 916 Hallmark Standard and 100% Capital Safe bullion hedging protocols.
+          </p>
+<div class="pt-1 flex items-center gap-3 text-[10px] text-stone-400 font-mono">
+<span>• 256-Bit Bank Encryption</span>
+<span>• No Lock-in Fees</span>
+</div>
+</div>
+<!-- END: TrustGuaranteesCard -->
+</aside>
+<!-- END: RightSidebarColumn -->
+</div>
+</main>
+<!-- END: DashboardContainer -->
+<!-- BEGIN: MainFooter -->
+<footer class="mt-16 border-t border-brand-border bg-white py-6" data-purpose="dashboard-footer">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-500">
+<div class="flex items-center space-x-2">
+<span class="font-serif tracking-wide text-stone-900 font-medium">AURUM ATELIER PRIVÉ</span>
+<span>•</span>
+<span>© 2025 Aurum Jewellers Ltd. All Rights Reserved.</span>
+</div>
+<div class="flex items-center space-x-6 text-stone-500">
+<a class="hover:text-stone-900 transition-colors" href="#">Regulatory Disclosures</a>
+<a class="hover:text-stone-900 transition-colors" href="#">Savings Scheme Bye-Laws</a>
+<a class="hover:text-stone-900 transition-colors" href="#">Privacy Policy</a>
+<span class="text-amber-600 font-medium flex items-center gap-1">
+          ★ 4.95 / 5 Patron Trust
+        </span>
+</div>
+</div>
+</footer>
+<!-- END: MainFooter -->
+</body></html>

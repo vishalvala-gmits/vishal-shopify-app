@@ -25,11 +25,10 @@
 
   position: relative;
   box-sizing: border-box;
-  /* Breakout: escape the theme's own narrow page/section content wrapper,
-     then size to 70% of the actual viewport width, centered. */
-  width: 70vw;
-  margin-left: calc(50% - 35vw);
-  margin-right: calc(50% - 35vw);
+  /* Leave 10% viewport space on both sides while escaping the theme wrapper. */
+  width: 80vw;
+  margin-left: calc(50% - 40vw);
+  margin-right: calc(50% - 40vw);
   margin-top: clamp(2.5rem, 5vw, 4rem);
   margin-bottom: clamp(2.5rem, 5vw, 4rem);
   padding: 0 clamp(1rem, 2vw, 2rem);
@@ -1005,7 +1004,7 @@
   flex-direction: column;
   gap: 0.75rem;
   padding: 1rem;
-  background: rgba(243, 239, 232, 0.6);
+  background: #ffffff;
   border: 1px solid var(--jss-border);
   border-radius: 16px;
 }
@@ -1051,6 +1050,14 @@
   padding: 0.6rem 0.5rem;
 }
 
+/* Complimentary month: a soft primary-colour fill with a primary outline. */
+.jss-gauge-box-free-month {
+  background: color-mix(in srgb, var(--jss-primary-color) 8%, white);
+  border-color: var(--jss-primary-color);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--jss-primary-color) 8%, transparent);
+}
+
+ 
 .jss-gauge-label {
   font-size: 1.066rem;
   font-weight: 500;

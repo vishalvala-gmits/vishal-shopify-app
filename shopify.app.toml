@@ -3,7 +3,7 @@
 client_id = "a369da58fa8a23584acbe9f993209828"
 application_url = "https://example.com"
 embedded = true
-name = "vishal-app"
+name = "Jewelry Savings Scheme"
 
 [webhooks]
 api_version = "2026-07"

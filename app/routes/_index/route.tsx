@@ -1,7 +1,5 @@
 import type { LoaderFunctionArgs } from "react-router";
-import { redirect, Form, useLoaderData } from "react-router";
-
-import { login } from "../../shopify.server";
+import { redirect } from "react-router";
 
 import styles from "./styles.module.css";
 
@@ -12,43 +10,32 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     throw redirect(`/app?${url.searchParams.toString()}`);
   }
 
-  return { showForm: Boolean(login) };
+  return null;
 };
 
 export default function App() {
-  const { showForm } = useLoaderData<typeof loader>();
-
   return (
     <div className={styles.index}>
       <div className={styles.content}>
-        <h1 className={styles.heading}>A short heading about [your app]</h1>
+        <h1 className={styles.heading}>Jewelry Savings Scheme</h1>
         <p className={styles.text}>
-          A tagline about [your app] that describes your value proposition.
+          Let customers save toward a future jewelry purchase with a
+          merchant-configured savings plan, capturing enquiries right in your
+          Shopify admin. Install this app from the Shopify App Store to get
+          started.
         </p>
-        {showForm && (
-          <Form className={styles.form} method="post" action="/auth/login">
-            <label className={styles.label}>
-              <span>Shop domain</span>
-              <input className={styles.input} type="text" name="shop" />
-              <span>e.g: my-shop-domain.myshopify.com</span>
-            </label>
-            <button className={styles.button} type="submit">
-              Log in
-            </button>
-          </Form>
-        )}
         <ul className={styles.list}>
           <li>
-            <strong>Product feature</strong>. Some detail about your feature and
-            its benefit to your customer.
+            <strong>Savings calculator</strong>. Show customers how their
+            contributions grow toward a future purchase.
           </li>
           <li>
-            <strong>Product feature</strong>. Some detail about your feature and
-            its benefit to your customer.
+            <strong>Enquiry capture</strong>. Collect and review customer
+            savings scheme enquiries directly in your Shopify admin.
           </li>
           <li>
-            <strong>Product feature</strong>. Some detail about your feature and
-            its benefit to your customer.
+            <strong>Theme app block</strong>. Add the widget to your storefront
+            without editing any theme code.
           </li>
         </ul>
       </div>

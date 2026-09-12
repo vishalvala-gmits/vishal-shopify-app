@@ -2,8 +2,18 @@ extends: theme-check:theme-app-extension
 
 AssetSizeAppBlockJavaScript:
   # The savings scheme widget covers gift tiers/summary cards for up to 2
-  # gifts, slider milestones, and the early-redemption popover in a single
-  # file (no bundler in this theme app extension), which puts it over the
-  # default 10KB threshold. Raised to accommodate that; still bounded so an
-  # unrelated regression doesn't balloon unnoticed.
-  threshold_in_bytes: 20000
+  # gifts, slider milestones, the early-redemption popover, phone-field
+  # country picker (with a full country-calling-code table), and enquiry
+  # form in a single file (theme app extensions ship assets/ as-is, with no
+  # supported bundling/minification step), which puts it over the default
+  # 10KB threshold. Raised to current size (~38KB) plus headroom so an
+  # unrelated regression doesn't balloon unnoticed; re-tighten if the file
+  # is ever minified or split.
+  threshold_in_bytes: 45000
+
+AssetSizeAppBlockCSS:
+  # Same rationale as AssetSizeAppBlockJavaScript: styling for the slider,
+  # tiered gift cards, savings journey gauge, redemption popover, and
+  # enquiry modal in a single unbundled stylesheet exceeds the default
+  # threshold. Raised to current size (~32KB) plus headroom.
+  threshold_in_bytes: 40000

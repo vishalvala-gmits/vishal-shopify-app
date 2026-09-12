@@ -243,10 +243,8 @@ export default function SavingsSchemeEnquiries() {
                     <th>Product</th>
                     <th>Phone</th>
                     <th>Email</th>
-                    <th className="jss-dash-right">Monthly amount</th>
-                    <th className="jss-dash-right">Duration</th>
-                    <th className="jss-dash-right">Contribution</th>
-                    <th className="jss-dash-right">Benefit</th>
+                    <th className="jss-dash-right">Monthly amount / Duration</th>
+                    <th className="jss-dash-right">Contribution / Benefit</th>
                     <th>Gift eligibility</th>
                     <th className="jss-dash-right">Received</th>
                     <th className="jss-dash-center">Actions</th>
@@ -277,16 +275,16 @@ export default function SavingsSchemeEnquiries() {
                       <td className="jss-dash-muted-cell">{enquiry.customerPhone ?? "—"}</td>
                       <td className="jss-dash-muted-cell">{enquiry.customerEmail ?? "—"}</td>
                       <td className="jss-dash-right jss-dash-mono">
-                        {formatMoney(enquiry.monthlyAmount, currencySymbol)}
-                      </td>
-                      <td className="jss-dash-right jss-dash-muted-cell">
-                        {enquiry.durationMonths} mo
+                        <div className="jss-dash-stack-tight jss-dash-stack-right">
+                          <span>{formatMoney(enquiry.monthlyAmount, currencySymbol)}</span>
+                          <span className="jss-dash-muted-cell">{enquiry.durationMonths} mo</span>
+                        </div>
                       </td>
                       <td className="jss-dash-right jss-dash-mono">
-                        {formatMoney(enquiry.totalContribution, currencySymbol)}
-                      </td>
-                      <td className="jss-dash-right jss-dash-mono jss-dash-strong-cell">
-                        {formatMoney(enquiry.totalBenefit, currencySymbol)}
+                        <div className="jss-dash-stack-tight jss-dash-stack-right">
+                          <span>{formatMoney(enquiry.totalContribution, currencySymbol)}</span>
+                          <span className="jss-dash-strong-cell">{formatMoney(enquiry.totalBenefit, currencySymbol)}</span>
+                        </div>
                       </td>
                       <td>
                         {enquiry.giftName ? (
@@ -358,9 +356,25 @@ export default function SavingsSchemeEnquiries() {
       </div>
 
       {confirmTarget && (
-        <div className="jss-dash-modal-backdrop" onClick={() => setConfirmDeleteId(null)}>
-          <div className="jss-dash-modal" onClick={(e) => e.stopPropagation()}>
-            <h2>Delete enquiry?</h2>
+        <div
+          className="jss-dash-modal-backdrop"
+          role="presentation"
+          onClick={(event) => {
+            // Only dismiss when the backdrop itself was clicked, not a click
+            // that bubbled up from inside the dialog - so the dialog content
+            // never needs its own click handler just to stop propagation.
+            if (event.target === event.currentTarget) {
+              setConfirmDeleteId(null);
+            }
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Escape") {
+              setConfirmDeleteId(null);
+            }
+          }}
+        >
+          <div className="jss-dash-modal" role="dialog" aria-modal="true" aria-labelledby="jss-delete-modal-heading">
+            <h2 id="jss-delete-modal-heading">Delete enquiry?</h2>
             <p>
               Are you sure you want to delete the enquiry from{" "}
               <strong>{confirmTarget.customerName}</strong>? This action cannot be undone.
@@ -524,6 +538,7 @@ const ENQ_CSS = `
 .jss-dash-muted-cell { color: #57534E; }
 .jss-dash-muted-sm { font-size: 12px; color: var(--muted); }
 .jss-dash-stack-tight { display: flex; flex-direction: column; gap: 4px; }
+.jss-dash-stack-right { align-items: flex-end; }
 
 .jss-dash-customer { display: flex; align-items: center; gap: 10px; white-space: normal; }
 .jss-dash-thumb {

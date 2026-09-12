@@ -411,7 +411,7 @@ export default function Index() {
                     target="_blank"
                     rel="noreferrer"
                   >
-                    Open theme editor
+                      Open Theme Editor
                   </a>
                 </div>
               </div>

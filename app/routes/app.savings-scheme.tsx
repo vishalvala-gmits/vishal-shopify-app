@@ -340,9 +340,10 @@ function GiftFields({ index, gift, errors }: GiftFieldsProps) {
 
   return (
     <div className="jss-form-stack">
-      <label className="jss-switch-row">
+      <label className="jss-switch-row" htmlFor={`${prefix}Enabled`} aria-label={`Gift ${index}`}>
         <input
           type="checkbox"
+          id={`${prefix}Enabled`}
           name={`${prefix}Enabled`}
           defaultChecked={gift?.enabled ?? false}
           onChange={(e) => setEnabled(e.target.checked)}
@@ -362,13 +363,13 @@ function GiftFields({ index, gift, errors }: GiftFieldsProps) {
         <>
           <div className="jss-field-grid-2">
             <div className="jss-field">
-              <label>Gift name *</label>
-              <input type="text" name={`${prefix}Name`} defaultValue={gift?.name ?? ""} required />
+              <label htmlFor={`${prefix}Name`}>Gift name *</label>
+              <input type="text" id={`${prefix}Name`} name={`${prefix}Name`} defaultValue={gift?.name ?? ""} required />
               {nameError && <span className="jss-field-error">{nameError}</span>}
             </div>
             <div className="jss-field">
-              <label>Gift value *</label>
-              <input type="number" name={`${prefix}Value`} defaultValue={gift?.value ?? ""} min={1} required />
+              <label htmlFor={`${prefix}Value`}>Gift value *</label>
+              <input type="number" id={`${prefix}Value`} name={`${prefix}Value`} defaultValue={gift?.value ?? ""} min={1} required />
               {valueError && <span className="jss-field-error">{valueError}</span>}
             </div>
           </div>
@@ -376,7 +377,7 @@ function GiftFields({ index, gift, errors }: GiftFieldsProps) {
           <input type="hidden" name={`${prefix}ImageUrl`} value={imageUrl} />
 
           <div className="jss-field">
-            <label>Gift image</label>
+            <span className="jss-field-label-text">Gift image</span>
             {imageUrl ? (
               <div className="jss-image-preview">
                 <img src={imageUrl} alt="Gift" />
@@ -386,9 +387,10 @@ function GiftFields({ index, gift, errors }: GiftFieldsProps) {
               </div>
             ) : (
               <>
-                <label className="jss-dropzone">
+                <label className="jss-dropzone" htmlFor={`${prefix}Image`}>
                   <input
                     ref={fileInputRef}
+                    id={`${prefix}Image`}
                     type="file"
                     accept="image/jpeg,image/png,image/gif,image/webp"
                     disabled={imageUploading}
@@ -406,14 +408,14 @@ function GiftFields({ index, gift, errors }: GiftFieldsProps) {
 
           <div className="jss-field-grid-2">
             <div className="jss-field">
-              <label>Minimum contribution to unlock gift</label>
-              <input type="number" name={`${prefix}MinAmount`} defaultValue={gift?.minAmount ?? ""} />
+              <label htmlFor={`${prefix}MinAmount`}>Minimum contribution to unlock gift</label>
+              <input type="number" id={`${prefix}MinAmount`} name={`${prefix}MinAmount`} defaultValue={gift?.minAmount ?? ""} />
               <span className="jss-field-hint">Leave empty to give this gift for all eligible plans</span>
               {minAmountError && <span className="jss-field-error">{minAmountError}</span>}
             </div>
             <div className="jss-field">
-              <label>Maximum contribution to unlock gift</label>
-              <input type="number" name={`${prefix}MaxAmount`} defaultValue={gift?.maxAmount ?? ""} />
+              <label htmlFor={`${prefix}MaxAmount`}>Maximum contribution to unlock gift</label>
+              <input type="number" id={`${prefix}MaxAmount`} name={`${prefix}MaxAmount`} defaultValue={gift?.maxAmount ?? ""} />
               <span className="jss-field-hint">Optional — leave empty for no upper limit</span>
               {maxAmountError && <span className="jss-field-error">{maxAmountError}</span>}
             </div>
@@ -500,14 +502,15 @@ export default function SavingsSchemeSettings() {
               </p>
               <div className="jss-field-grid-2">
                 <div className="jss-field">
-                  <label>Scheme name *</label>
-                  <input type="text" name="name" defaultValue={scheme?.name ?? ""} required />
+                  <label htmlFor="name">Scheme name *</label>
+                  <input type="text" id="name" name="name" defaultValue={scheme?.name ?? ""} required />
                   {errors.name?.[0] && <span className="jss-field-error">{errors.name[0]}</span>}
                 </div>
                 <div className="jss-field">
-                  <label>Contribution months *</label>
+                  <label htmlFor="durationMonths">Contribution months *</label>
                   <input
                     type="number"
+                    id="durationMonths"
                     name="durationMonths"
                     defaultValue={scheme?.durationMonths ?? 9}
                     min={1}
@@ -519,9 +522,10 @@ export default function SavingsSchemeSettings() {
                 </div>
               </div>
               <div className="jss-field jss-field-half">
-                <label>Bonus months *</label>
+                <label htmlFor="bonusMonths">Bonus months *</label>
                 <input
                   type="number"
+                  id="bonusMonths"
                   name="bonusMonths"
                   defaultValue={scheme?.bonusMonths ?? 1}
                   min={1}
@@ -548,9 +552,10 @@ export default function SavingsSchemeSettings() {
               </p>
               <div className="jss-field-grid-2">
                 <div className="jss-field">
-                  <label>Minimum monthly contribution *</label>
+                  <label htmlFor="minAmount">Minimum monthly contribution *</label>
                   <input
                     type="number"
+                    id="minAmount"
                     name="minAmount"
                     defaultValue={scheme?.minAmount ?? defaults.minAmount}
                     min={1}
@@ -561,9 +566,10 @@ export default function SavingsSchemeSettings() {
                   )}
                 </div>
                 <div className="jss-field">
-                  <label>Maximum monthly contribution *</label>
+                  <label htmlFor="maxAmount">Maximum monthly contribution *</label>
                   <input
                     type="number"
+                    id="maxAmount"
                     name="maxAmount"
                     defaultValue={scheme?.maxAmount ?? defaults.maxAmount}
                     min={1}
@@ -576,8 +582,8 @@ export default function SavingsSchemeSettings() {
               </div>
               <div className="jss-field-grid-2">
                 <div className="jss-field">
-                  <label>Quick select amounts</label>
-                  <input type="text" name="presetAmounts" defaultValue={presetAmountsDefault} />
+                  <label htmlFor="presetAmounts">Quick select amounts</label>
+                  <input type="text" id="presetAmounts" name="presetAmounts" defaultValue={presetAmountsDefault} />
                   <span className="jss-field-hint">
                     Comma separated, up to 4 amounts, e.g. 10000, 30000, 50000, 80000
                   </span>
@@ -586,8 +592,8 @@ export default function SavingsSchemeSettings() {
                   )}
                 </div>
                 <div className="jss-field">
-                  <label>Featured / Popular preset amount</label>
-                  <input type="number" name="popularAmount" defaultValue={scheme?.popularAmount ?? ""} />
+                  <label htmlFor="popularAmount">Featured / Popular preset amount</label>
+                  <input type="number" id="popularAmount" name="popularAmount" defaultValue={scheme?.popularAmount ?? ""} />
                   <span className="jss-field-hint">
                     Displays the &apos;POPULAR&apos; badge on this preset amount button
                   </span>
@@ -622,9 +628,14 @@ export default function SavingsSchemeSettings() {
                 Show customers early redemption estimated values (e.g. 7th,
                 8th, 9th, 10th month) if they redeem early.
               </p>
-              <label className="jss-switch-row">
+              <label
+                className="jss-switch-row"
+                htmlFor="earlyRedemptionEnabled"
+                aria-label="Enable early redemption schedule"
+              >
                 <input
                   type="checkbox"
+                  id="earlyRedemptionEnabled"
                   name="earlyRedemptionEnabled"
                   defaultChecked={scheme?.earlyRedemptionEnabled ?? true}
                   onChange={(e) => setEarlyRedemptionEnabled(e.target.checked)}
@@ -636,9 +647,10 @@ export default function SavingsSchemeSettings() {
               </label>
               {earlyRedemptionEnabled && (
                 <div className="jss-field jss-field-half">
-                  <label>Eligible after (months) *</label>
+                  <label htmlFor="earlyRedemptionMinMonths">Eligible after (months) *</label>
                   <input
                     type="number"
+                    id="earlyRedemptionMinMonths"
                     name="earlyRedemptionMinMonths"
                     defaultValue={scheme?.earlyRedemptionMinMonths ?? 8}
                     min={1}
@@ -662,9 +674,10 @@ export default function SavingsSchemeSettings() {
             <div className="jss-dash-card-body jss-form-stack">
               <div className="jss-field-grid-2">
                 <div className="jss-field">
-                  <label>Currency symbol *</label>
+                  <label htmlFor="currencySymbol">Currency symbol *</label>
                   <input
                     type="text"
+                    id="currencySymbol"
                     name="currencySymbol"
                     defaultValue={scheme?.currencySymbol || defaultCurrencySymbol}
                     required
@@ -677,10 +690,11 @@ export default function SavingsSchemeSettings() {
                   )}
                 </div>
                 <div className="jss-field">
-                  <label>Primary color *</label>
+                  <label htmlFor="primaryColor">Primary color *</label>
                   <div className="jss-color-field">
                     <input
                       type="color"
+                      id="primaryColor"
                       name="primaryColor"
                       defaultValue={scheme?.primaryColor ?? "#5C4642"}
                     />
@@ -694,7 +708,7 @@ export default function SavingsSchemeSettings() {
                 </div>
               </div>
               <div className="jss-field">
-                <label>Terms &amp; conditions agreement text</label>
+                <span className="jss-field-label-text">Terms &amp; conditions agreement text</span>
                 <div className="jss-terms-box">
                   <span className="jss-muted-cell">{TERMS_TEXT_PREFIX_DISPLAY}</span>
                   <input
@@ -805,7 +819,8 @@ const SETTINGS_CSS = `
 .jss-field { display: flex; flex-direction: column; gap: 4px; }
 .jss-field-half { max-width: 50%; }
 @media (max-width: 600px) { .jss-field-half { max-width: 100%; } }
-.jss-field label { font-size: 13px; font-weight: 500; color: #292524; }
+.jss-field label,
+.jss-field-label-text { font-size: 13px; font-weight: 500; color: #292524; }
 .jss-field input[type="text"],
 .jss-field input[type="number"] {
   padding: 8px 12px;

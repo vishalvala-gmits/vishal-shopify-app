@@ -109,10 +109,27 @@ export async function upsertSchemeForShop(
   };
 
   if (schemeId) {
-    return prisma.savingsScheme.update({
-      where: { id: schemeId },
+    // schemeId originates from a client-supplied hidden form field, so the
+    // update must also be scoped to `shop` — otherwise a merchant could
+    // submit another shop's scheme id and overwrite that shop's
+    // configuration. updateMany (rather than update) lets us filter on the
+    // compound (id, shop) pair instead of id alone.
+    const result = await prisma.savingsScheme.updateMany({
+      where: { id: schemeId, shop },
       data,
     });
+
+    if (result.count === 0) {
+      throw new Error("Scheme not found for this shop.");
+    }
+
+    const updated = await prisma.savingsScheme.findFirst({
+      where: { id: schemeId, shop },
+    });
+    if (!updated) {
+      throw new Error("Scheme not found for this shop.");
+    }
+    return updated;
   }
 
   return prisma.savingsScheme.create({

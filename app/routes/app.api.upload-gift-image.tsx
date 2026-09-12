@@ -157,7 +157,7 @@ async function handleUpload(
   }
 
   let imageUrl: string | undefined = createdFile.image?.url;
-  let fileId = createdFile.id;
+  const fileId = createdFile.id;
 
   for (let attempt = 0; !imageUrl && attempt < POLL_ATTEMPTS; attempt++) {
     await sleep(POLL_DELAY_MS);
